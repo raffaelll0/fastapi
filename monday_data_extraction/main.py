@@ -1,4 +1,18 @@
-import pdf_gen, data_to_score, data_to_chart, monday
+from monday_data_extraction import data_to_score, data_to_chart, pdf_gen
+
+
+
+
+def genera_pdf_prova():
+    prev_evasi_mes = data_to_score.n_tot_prev_evasi_mese()
+
+    pdf = pdf_gen.generate_pdf(prev_evasi_mes)
+
+    return (pdf)
+
+
+
+
 
 
 def genera_report_hf():
@@ -53,7 +67,27 @@ def genera_report_hf():
 
     return(pdf)
 
-genera_report_hf()
+#genera_report_hf()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def invia_mail(pdf):
     """
