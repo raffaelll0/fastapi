@@ -16,7 +16,7 @@ app = FastAPI()
 @app.get("/download_blank_pdf")
 def download_blank_pdf():
     # Generate a blank PDF
-    pdf_bytes = generate_blank_pdf()
+    pdf_bytes = generate_pdf()
 
     # Return the PDF as a response
     return StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf", headers={"Content-Disposition": "attachment;filename=blank.pdf"})
@@ -34,7 +34,7 @@ def save_pdf_to_file(pdf_bytes, filename):
         pdf_file.write(pdf_bytes)
 
 
-def generate_blank_pdf():
+def generate_pdf():
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
 
@@ -165,7 +165,7 @@ def generate_blank_pdf():
 
     buffer.seek(0)
     return buffer.read()
-generate_blank_pdf()
+generate_pdf()
 
 
 
