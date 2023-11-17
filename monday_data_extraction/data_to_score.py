@@ -1,7 +1,8 @@
 import requests
-import monday
+
+from monday_data_extraction import monday
 import pandas as pd
-from monday import first_and_last_day_of_year, get_first_and_last_day_of_current_month
+from monday_data_extraction.monday import first_and_last_day_of_year, get_first_and_last_day_of_current_month
 
 apiKey = monday.apiKey
 apiUrl = monday.apiUrl
