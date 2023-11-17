@@ -1,7 +1,8 @@
-import monday
 import altair as alt
 import pandas as pd
-from monday import get_first_and_last_day_of_current_month, get_items
+
+from monday_data_extraction import monday
+from monday_data_extraction.monday import get_first_and_last_day_of_current_month, get_items
 
 apiKey = monday.apiKey
 apiUrl = monday.apiUrl
