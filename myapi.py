@@ -13,7 +13,7 @@ from reportlab.lib.pagesizes import letter
 app = FastAPI()
 
 
-@app.get("/download_blank_pdf")
+@app.get("/")
 def download_blank_pdf():
     # Generate a blank PDF
     pdf_bytes = generate_pdf()
