@@ -290,12 +290,12 @@ def generate_pdf(prev_evasi_mes,
     # Build the PDF document
     doc.build(story)
 
-    return buffer.read()
-
-
-
-if __name__ == "__main__":
-    generate_pdf()
+#     return buffer.read()
+#
+#
+#
+# if __name__ == "__main__":
+#     generate_pdf()
 
 
 
