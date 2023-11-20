@@ -54,12 +54,12 @@ def n_progetti_in_progress_su_pm():
               sort=alt.EncodingSortField(field='count', op='sum')),
       y=alt.Y('count:Q', title='Conteggio'),
       color=alt.Color('specchio_1:N', title='BU'),
-      tooltip=['person','count', 'specchio_1']
-      ).interactive()
+      tooltip=['person', 'count', 'specchio_1']
+      ).interactive().properties(width=600, height=200)
 
 
 
-  chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart.png'
+  chart_path = r'pngs_of_charts\chart_1.png'
 
   chart.save(chart_path)
 
@@ -102,9 +102,9 @@ def importo_progetti_progress_anno():
         x='anno:N',
         y='sum(value):Q',
         tooltip=['anno:N', 'sum(value):Q']
-    ).properties(width=200)
+    ).properties(width=600, height=200)
 
-    chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_2.png'
+    chart_path = r'pngs_of_charts\chart_2.png'
 
     chart.save(chart_path)
 
@@ -147,9 +147,9 @@ def portafoglio_ordine_residuo():
 
         tooltip=['Total Sum']
 
-    ).interactive().properties(width=200, title="in progress")
+    ).interactive().properties(width=600, height=200, title="in progress")
 
-    chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_3.png'
+    chart_path = r'pngs_of_charts\chart_3.png'
 
     chart.save(chart_path)
 
