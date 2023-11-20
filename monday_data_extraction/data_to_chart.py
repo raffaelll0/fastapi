@@ -193,9 +193,9 @@ def analisi_ferie_malattia():
                 sort=alt.EncodingSortField(field='valore')),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive()
+    ).interactive().properties(width=600, height=200)
 
-    chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_4.png'
+    chart_path = r'pngs_of_charts\chart_4.png'
 
     chart.save(chart_path)
 
@@ -237,9 +237,9 @@ def analisi_permessi_rol():
                 sort=alt.EncodingSortField(field='valore')),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive()
+    ).interactive().properties(width=600, height=200)
 
-    chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_5.png'
+    chart_path = r'pngs_of_charts\chart_5.png'
 
     chart.save(chart_path)
 
@@ -281,9 +281,9 @@ def analisi_assenze_liberi_professionisti():
                 sort=alt.EncodingSortField(field='valore')),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive()
+    ).interactive().properties(width=600, height=200)
 
-    chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_6.png'
+    chart_path = r'pngs_of_charts\chart_6.png'
 
     chart.save(chart_path)
 
@@ -325,9 +325,9 @@ def giornate_smart_working():
           sort=alt.EncodingSortField(field='count')),
   y=alt.Y('count:Q', title='Giorni di Smart Working'),
   tooltip=['nome_lavoratore','count']
-  ).interactive()
+  ).interactive().properties(width=600, height=200)
 
-  chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_7.png'
+  chart_path = r'pngs_of_charts\chart_7.png'
 
   chart.save(chart_path)
 
@@ -370,9 +370,9 @@ def timesheet_mese():
       y=alt.Y('ore_rendicontate:Q', title='Ore Rendicontate'),
       color=alt.Color('bu:N', title='BU'),
       tooltip=['nome_lavoratore','ore_rendicontate', 'bu']
-      ).interactive()
+      ).interactive().properties(width=600, height=200)
 
-  chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_8.png'
+  chart_path = r'pngs_of_charts\chart_8.png'
 
   chart.save(chart_path)
 
@@ -413,8 +413,8 @@ def bu_h_pie():
     theta="ore_rendicontate:Q",
     color="bu",
     tooltip=["bu", "ore_rendicontate"]
-  )
-  chart_path = r'C:\Users\raffaele.loglisci\Desktop\altair_demo\monday_data_extraction\pngs_of_charts\chart_9.png'
+  ).properties(width=600, height=200)
+  chart_path = r'pngs_of_charts\chart_9.png'
 
   chart.save(chart_path)
 
