@@ -4,9 +4,8 @@ from monday_data_extraction import data_to_score, data_to_chart, pdf_gen
 
 
 def genera_pdf_prova():
-    prev_evasi_mes = data_to_score.n_tot_prev_evasi_mese()
 
-    pdf = pdf_gen.generate_pdf(prev_evasi_mes)
+    pdf = pdf_gen.create_pdf(file_path="pdf_with_image.pdf")
 
 
     return (pdf)
