@@ -62,8 +62,6 @@ def n_tot_prev_accettati_mese():
 
     count = len(df)
 
-    print(count)
-
     return count
 
 
@@ -156,6 +154,7 @@ def importo_tot_prev_evasi():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
+    total_sum = '{:,.0f}'.format(float(total_sum))
 
     return total_sum
 
@@ -194,6 +193,7 @@ def importo_tot_prev_accettati():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
+    total_sum = '{:,.0f}'.format(float(total_sum))
     return total_sum
 
 
@@ -227,7 +227,7 @@ def fatturato_prev_2023():
             print("Warning: Could not convert '{0}' to float. Skipping this value.".format(numeri_value))
 
     rounded_total_sum = round(total_sum, 2)
-    #print("Total Sum until cursor is None:", rounded_total_sum)
+    rounded_total_sum = '{:,.0f}'.format(float(total_sum))
 
 
 
@@ -270,6 +270,7 @@ def fatturato_ad_oggi():
             print("Warning: Could not convert '{0}' to float. Skipping this value.".format(numeri_value))
 
     rounded_total_sum = round(total_sum, 2)
+    rounded_total_sum = '{:,.0f}'.format(float(total_sum))
     return rounded_total_sum
 
 
@@ -306,6 +307,7 @@ def fatturato_da_emettere():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
+    total_sum = '{:,.0f}'.format(float(total_sum))
 
 
     return total_sum
