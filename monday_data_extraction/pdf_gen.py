@@ -3,7 +3,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.utils import ImageReader
 
-#from monday_data_extraction import data_to_chart
+from monday_data_extraction import data_to_chart
 from monday_data_extraction import data_to_score
 def header(pdf, header_path):
     # HEADER
@@ -199,25 +199,26 @@ def create_pdf(file_path):
     header(pdf, image_path_header)
     # HEADER END
 
-    # TITLE_3
+    # TITLE_3 START
     title(pdf, text="ANALISI OPERATIVA PROGETTI", y_offset=680)
-    # TITLE_3
+    # TITLE_3 END
 
     # DESCRIPTIONS + IMG START
+
     descriptions(pdf, text_1="N Progetti in progress su PM", text2="", x_offset=50, y_offset=660)
     # Draw Altair chart image under the description
-    #chart_path = data_to_chart.n_progetti_in_progress_su_pm()
-    chart_path = r'pngs_of_charts/chart_1.png'
+    chart_path = data_to_chart.n_progetti_in_progress_su_pm()
+    #chart_path = r'pngs_of_charts/chart_1.png'
     draw_chart_under_description(pdf, chart_path, y_offset=670, logo_width=450, logo_height=200)
 
     descriptions(pdf, text_1="Importi Progetti in progress per ANNO", text2="", x_offset=50, y_offset=450)
-    #chart_path = data_to_chart.importo_progetti_progress_anno()
-    chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_2.png'
+    chart_path = data_to_chart.importo_progetti_progress_anno()
+    #chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_2.png'
     draw_chart_under_description(pdf, chart_path, y_offset=465, logo_width=450, logo_height=180)
 
     descriptions(pdf, text_1="Importo Progetti in progress per BU", text2="", x_offset=50, y_offset=250)
-    #chart_path = data_to_chart.portafoglio_ordine_residuo()
-    chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_3.png'
+    chart_path = data_to_chart.portafoglio_ordine_residuo()
+    #chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_3.png'
     draw_chart_under_description(pdf, chart_path, y_offset=265, logo_width=450, logo_height=130)
 
     # DESCRIPTIONS + IMG END
@@ -227,7 +228,102 @@ def create_pdf(file_path):
     # FOOTER END
 
     # SECOND PAGE END
+########################################################################################################################
+    # THIRD PAGE START
+    pdf.showPage()
+    # HEADER START
+    header(pdf, image_path_header)
+    # HEADER END
 
+    # TITLE_4 START
+    title(pdf, text="CONTROLLO DI GESTIONE", y_offset=680)
+    # TITLE_4 END
+
+    # DESCRIPTIONS + IMG START
+
+    descriptions(pdf, text_1="Analisi Ferie - Malattia - Dayhospital - Dipendenti", text2="", x_offset=50, y_offset=660)
+    # Draw Altair chart image under the description
+    chart_path = data_to_chart.data_to_analisi_ferie_malattia()
+    #chart_path = r'pngs_of_charts/chart_4.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=670, logo_width=450, logo_height=200)
+
+    descriptions(pdf, text_1="Analisi Permessi/ROL Dipendenti", text2="", x_offset=50, y_offset=450)
+    chart_path = data_to_chart.analisi_permessi_rol()
+    #chart_path = r'pngs_of_charts\chart_5.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=465, logo_width=450, logo_height=180)
+
+    descriptions(pdf, text_1="Analisi giornate Smart Working", text2="", x_offset=50, y_offset=250)
+    chart_path = data_to_chart.giornate_smart_working()
+    #chart_path = r'pngs_of_charts\chart_6.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=265, logo_width=450, logo_height=130)
+
+    # DESCRIPTIONS + IMG END
+
+
+    # FOOTER START
+    footer(pdf, image_path_footer)
+    # FOOTER END
+    # THIRD PAGE END
+
+########################################################################################################################
+
+    # FOURTH PAGE START
+    pdf.showPage()
+    # HEADER START
+    header(pdf, image_path_header)
+    # HEADER END
+
+    # TITLE_4 START
+    title(pdf, text="CONTROLLO DI GESTIONE", y_offset=680)
+    # TITLE_4 END
+
+    # DESCRIPTIONS + IMG START
+
+    descriptions(pdf, text_1="Analisi Assenze Liberi Professionisti", text2="", x_offset=50, y_offset=660)
+    # Draw Altair chart image under the description
+    chart_path = data_to_chart.data_to_analisi_ferie_malattia()
+    #chart_path = r'pngs_of_charts/chart_7.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=670, logo_width=450, logo_height=200)
+
+    descriptions(pdf, text_1="Timesheet Mese", text2="", x_offset=50, y_offset=450)
+    chart_path = data_to_chart.analisi_permessi_rol()
+    #chart_path = r'pngs_of_charts\chart_8.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=465, logo_width=450, logo_height=180)
+
+    descriptions(pdf, text_1="BU/h", text2="", x_offset=50, y_offset=250)
+    chart_path = data_to_chart.giornate_smart_working()
+    #chart_path = r'pngs_of_charts\chart_9.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=265, logo_width=450, logo_height=130)
+
+    # DESCRIPTIONS + IMG END
+
+    # FOOTER START
+    footer(pdf, image_path_footer)
+    # FOOTER END
+    # FOURTH PAGE END
+########################################################################################################################
+    # FIFTH PAGE START
+    pdf.showPage()
+    # HEADER START
+    header(pdf, image_path_header)
+    # HEADER END
+
+    # BOX_1 START
+
+    num_boxes = 2
+    box_titles = ["OBIETTIVI 2023", "COMMENTI"]
+    box_values = ["TESTO", "TESTO"]
+    box_width = 220
+    box_height = 80
+
+    draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=600)
+    # BOX_1 END
+
+
+    # FOOTER START
+    footer(pdf, image_path_footer)
+    # FOOTER END
+    # FIFTH PAGE END
     # Save the PDF to the specified file path
     pdf.save()
 
@@ -236,7 +332,7 @@ def create_pdf(file_path):
 pdf_file_path = "pdf_with_image.pdf"
 
 # Call the function to create the PDF with the image
-create_pdf(pdf_file_path)
+#create_pdf(pdf_file_path)
 
 print(f"PDF with image created successfully at: {pdf_file_path}")
 
