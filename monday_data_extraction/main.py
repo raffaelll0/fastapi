@@ -8,6 +8,7 @@ def genera_pdf_prova():
 
     pdf = pdf_gen.generate_pdf(prev_evasi_mes)
 
+
     return (pdf)
 
 
