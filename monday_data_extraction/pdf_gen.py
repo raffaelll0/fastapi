@@ -1,440 +1,245 @@
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
-from io import BytesIO
+#from monday_data_extraction import data_to_chart
+from monday_data_extraction import data_to_score
+def header(pdf, header_path):
+    # HEADER
+    # Get the dimensions of the img
+    x_offset = 550
+    y_offset = 800
 
-from monday_data_extraction import main
-from monday_data_extraction.data_to_score import *
-from monday_data_extraction.data_to_chart import *
+    # Add an image at the top as a header
+    logo_width = 110  # Adjust the width of the image as needed
+    logo_height = 100  # Adjust the height of the image as needed
+    pdf.drawInlineImage(header_path, x=x_offset - logo_width / 1, y=y_offset - logo_height - 20, width=logo_width,
+                        height=logo_height)
 
-def pdf_title_func(title, story):
-    # CREO UN TITOLO PER LA NUOVA PAGINA
-    title = title
-    title_style = getSampleStyleSheet()["Title"]
-    title_paragraph = Paragraph(title, title_style)
-    story.append(title_paragraph)
-    story.append(Spacer(1, 12))
-
-
-def save_pdf_to_file(pdf_bytes, filename):
-    with open(filename, "wb") as pdf_file:
-        pdf_file.write(pdf_bytes)
+    # HEADER
 
 
-def generate_pdf(prev_evasi_mes):
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+def footer(pdf, footer_path):
+    # FOOTER
+    # Get the dimensions of the img
+    x_offset = 550
+    y_offset = 130
 
-    ########################################################################################################################
-    # PRIMA PAGINA DEL PDF
+    # Add an image at the top as a header
+    logo_width = 480  # Adjust the width of the image as needed
+    logo_height = 100  # Adjust the height of the image as needed
 
-    # CREO UNA LISTA PER SALVARE INFORMAZIONI
-    story = []
+    pdf.drawInlineImage(footer_path, x=x_offset - logo_width / 1, y=y_offset - logo_height - 20, width=logo_width,
+                        height=logo_height)
 
-    pdf_title_func("REPORT KPI MESE 2023", story)
+    # FOOTER
 
-    # AGGIUNGO I DATI DELL'AUTORE E GLI AGGIORNAMENTI
-    author_info = "Autore del report: Christian Trocino<br/>Dati aggiornati al XX/XX/XXXX"
-    author_style = getSampleStyleSheet()["Normal"]
-    author_paragraph = Paragraph(author_info, author_style)
-    story.append(author_paragraph)
 
-    # CREO UNA LINEA DI SPAZIO SOTTO IL TITOLO
-    story.append(Spacer(1, 12))
-
-    ########################################################
-
-    pdf_title_func("PERIODO DI RIFERIMENTO MESE 2023", story)
-
-    # CREO UNA DESCRIZIONE PER OGNI BOX
-    description1 = "N tot prev.Evasi"
-    description2 = "N tot prev.Accettati"
-    description3 = "N tot prev.acc.consuntivo"
-    description4 = "Importo tot prev.Evasi"
-
-    # CREO UNA TABELLA CON 4 QUADRATI CHE CONTENGONO DATI
-    data = [
-        [description1, description2, description3, description4],
-        [str(prev_evasi_mes), "str(prev_acc_mes)", "str(prev_acc_consuntivo)", "str(importo_tot_prev_evasi)"]
-    ]
-
-    table_data = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data]
-    table = Table(table_data, colWidths=100, rowHeights=50)  # Decreased row heights
-
-    # APPLICO LO STILE DELLE TABELLE PER UNO SFONDO BIANCO E LINEE NERE
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('SIZE', (0, 0), (-1, -1), 36),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-
-    story.append(table)
-
-    # CREO UNA LINEA DI SPAZIO SOTTO IL TITOLO
-    story.append(Spacer(1, 12))
-
-    ###################################################
-
-    pdf_title_func("PERIODO DI RIFERIMENTO: ANNO 2023", story)
-
-    # CREO UNA TABELLA CON 2 BOX CONTENTI I VALORI 1 ALLA SINISTRA E 2 ALLA DESTRA (PER ADESSO)
-    data2 = [
-        ["N. Tot.Prev.Accettati nell'anno", "Importo Tot.Prev.Accettati"],
-        ["str(prev_acc_anno)", "str(importo_tot_prev_accettati)"]
-    ]
-
-    table_data2 = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data2]
-    table2 = Table(table_data2, colWidths=100, rowHeights=50)  # Decreased row heights
-
-    table2.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('SIZE', (0, 0), (-1, -1), 36),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-
-    story.append(table2)
-
-    # CREO UNA LINEA DI SPAZIO SOTTO IL TITOLO
-    story.append(Spacer(1, 12))
-
-    ################################################
-
-    # AGGIUNGO LA DESCRIZIONE "FATTURATO AD OGGI," "FATTURATO DA EMETTERE," E "FATTURATO PREVISTO 2023"
-    # SOTTO LE BOX ESISTENTI
-    description_left = "FATTURATO AD OGGI"
-    description_center = "FATTURATO DA EMETTERE"
-    description_right = "FATTURATO PREVISTO 2023"
-
-    # CCREO UNA TABELLA CON TRE BOX CONTENENTI VALORI E DESCRIZIONI
-    data3 = [
-        [description_left, description_center, description_right],
-        ["str(fatturato_ad_oggi)", "str(fatturato_da_emettere)", "str(fatturato_prev_2023)"]
-    ]
-
-    table_data3 = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data3]
-    table3 = Table(table_data3, colWidths=100, rowHeights=50)  # Decreased row heights
-
-    table3.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('SIZE', (0, 0), (-1, -1), 36),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-
-    story.append(table3)
-
-    ########################################################################################################################
-    # SECONDA PAGINA DEL PDF
-
-    # AGGIUNGO UN PAGE BREAK PER INIZIARE UNA NUOVA PAGINA
-    story.append(PageBreak())
-
-    pdf_title_func("ANALISI OPERATIVA PROGETTI", story)
+def title(pdf, text, y_offset):
+    # TITLE
+    # Add bold title in the center
+    pdf.setFont("Helvetica-Bold", 16)  # Set font to bold and size 16
 
 
 
-    ########################################################################################################################
+    # Calculate the position for the center of the page
+    x_position = (pdf._pagesize[0] - pdf.stringWidth(text, "Helvetica-Bold", 16)) / 2
+    y_position = y_offset
 
-    # Build the PDF document
-    doc.build(story)
-
-    # Save the PDF to a file
-    save_pdf_to_file(buffer.getvalue(), "output.pdf")
-
-
-    buffer.seek(0)
-    return buffer.read()
+    pdf.drawString(x_position, y_position, text)
+    # TITLE
 
 
+def descriptions(pdf, text_1, text2, x_offset, y_offset):
+    # DESCRIPTIONS
+    # Add description lines
+    pdf.setFont("Helvetica", 12)  # Set font to regular and size 12
+    pdf.drawString(x_offset, y_offset, text_1)
+    pdf.drawString(x_offset, y_offset - 20, text2)
+    # DESCRIPTIONS
 
-# Create a function to generate the PDF
-# def generate_pdf(prev_evasi_mes,
-#                  prev_acc_mes,
-#                  prev_acc_consuntivo,
-#                  importo_tot_prev_evasi,
-#                  prev_acc_anno,
-#                  importo_tot_prev_accettati,
-#                  fatturato_prev_2023,
-#                  fatturato_ad_oggi,
-#                  fatturato_da_emettere,
-#                  chart_progetti_in_progress_su_pm,
-#                  importo_progetti_progress_anno,
-#                  portafoglio_ordine_residuo,
-#                  analisi_ferie_malattia,
-#                  analisi_permessi_rol,
-#                  analisi_assenze_liberi_professionisti,
-#                  giornate_smart_working,
-#                  timesheet_mese,
-#                  bu_h_pie):
-#     """
-#     Questa funzione crea un pdf basato da griglie rettangolari con
-#     all' interno i dati estrapolati da varie funzioni presenti nel file extract_data_script
-#     (Per esempio la parte iniziale aggiunge delle descrizioni con delle box sotto)
-#
-#     il file creato si chiama kpi_report.pdf e si trova all'interno della root di progetto
-#
-#     Args:
-#
-#     Returns:
-#         pdf file
-#     """
-#
-#
-# ########################################################################################################################
-# #PRIMA PAGINA DEL PDF
-#
-#     # CREO UN OGGETTO SimpleDocTemplate
-#     doc = SimpleDocTemplate(r"C:\Users\raffaele.loglisci\Desktop\altair_demo\kpi_report.pdf", pagesize=letter)
-#
-#     # CREO UNA LISTA PER SALVARE INFORMAZIONI
-#     story = []
-#
-#     pdf_title_func("REPORT KPI MESE 2023", story)
-#
-#
-#     # AGGIUNGO I DATI DELL'AUTORE E GLI AGGIORNAMENTI
-#     author_info = "Autore del report: Christian Trocino<br/>Dati aggiornati al XX/XX/XXXX"
-#     author_style = getSampleStyleSheet()["Normal"]
-#     author_paragraph = Paragraph(author_info, author_style)
-#     story.append(author_paragraph)
-#
-#     # CREO UNA LINEA DI SPAZIO SOTTO IL TITOLO
-#     story.append(Spacer(1, 12))
-#
-#
-# ########################################################
-#
-#     pdf_title_func("PERIODO DI RIFERIMENTO MESE 2023", story)
-#
-#
-#
-#     # CREO UNA DESCRIZIONE PER OGNI BOX
-#     description1 = "N tot prev.Evasi"
-#     description2 = "N tot prev.Accettati"
-#     description3 = "N tot prev.acc.consuntivo"
-#     description4 = "Importo tot prev.Evasi"
-#
-#
-#
-#     # CREO UNA TABELLA CON 4 QUADRATI CHE CONTENGONO DATI
-#     data = [
-#         [description1, description2, description3, description4],
-#         [str(prev_evasi_mes), str(prev_acc_mes), str(prev_acc_consuntivo), str(importo_tot_prev_evasi)]
-#     ]
-#
-#     table_data = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data]
-#     table = Table(table_data, colWidths=100, rowHeights=50)  # Decreased row heights
-#
-#     # APPLICO LO STILE DELLE TABELLE PER UNO SFONDO BIANCO E LINEE NERE
-#     table.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-#         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#         ('SIZE', (0, 0), (-1, -1), 36),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-#     ]))
-#
-#     story.append(table)
-#
-#     # CREO UNA LINEA DI SPAZIO SOTTO IL TITOLO
-#     story.append(Spacer(1, 12))
-#
-#
-# ###################################################
-#
-#     pdf_title_func("PERIODO DI RIFERIMENTO: ANNO 2023", story)
-#
-#
-#     # CREO UNA TABELLA CON 2 BOX CONTENTI I VALORI 1 ALLA SINISTRA E 2 ALLA DESTRA (PER ADESSO)
-#     data2 = [
-#         ["N. Tot.Prev.Accettati nell'anno", "Importo Tot.Prev.Accettati"],
-#         [str(prev_acc_anno), str(importo_tot_prev_accettati)]
-#     ]
-#
-#     table_data2 = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data2]
-#     table2 = Table(table_data2, colWidths=100, rowHeights=50)  # Decreased row heights
-#
-#     table2.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-#         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#         ('SIZE', (0, 0), (-1, -1), 36),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-#     ]))
-#
-#
-#     story.append(table2)
-#
-#     # CREO UNA LINEA DI SPAZIO SOTTO IL TITOLO
-#     story.append(Spacer(1, 12))
-#
-#
-# ################################################
-#
-#
-#     # AGGIUNGO LA DESCRIZIONE "FATTURATO AD OGGI," "FATTURATO DA EMETTERE," E "FATTURATO PREVISTO 2023"
-#     # SOTTO LE BOX ESISTENTI
-#     description_left = "FATTURATO AD OGGI"
-#     description_center = "FATTURATO DA EMETTERE"
-#     description_right = "FATTURATO PREVISTO 2023"
-#
-#     # CCREO UNA TABELLA CON TRE BOX CONTENENTI VALORI E DESCRIZIONI
-#     data3 = [
-#         [description_left, description_center, description_right],
-#         [str(fatturato_ad_oggi), str(fatturato_da_emettere), str(fatturato_prev_2023)]
-#     ]
-#
-#     table_data3 = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data3]
-#     table3 = Table(table_data3, colWidths=100, rowHeights=50)  # Decreased row heights
-#
-#     table3.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-#         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#         ('SIZE', (0, 0), (-1, -1), 36),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-#     ]))
-#
-#     story.append(table3)
-#
-#
-# ########################################################################################################################
-# #SECONDA PAGINA DEL PDF
-#
-#     # AGGIUNGO UN PAGE BREAK PER INIZIARE UNA NUOVA PAGINA
-#     story.append(PageBreak())
-#
-#     pdf_title_func("ANALISI OPERATIVA PROGETTI", story)
-#
-#
-#     pdf_title_func("Progetti in progress su PM", story)
-#     # Add the Altair chart image to the story
-#     img = Image(chart_progetti_in_progress_su_pm)
-#     story.append(img)
-#
-#
-#     story.append(PageBreak())
-#     pdf_title_func("Importo progetti in progress per anno", story)
-#     # Add the Altair chart image to the story
-#     img_2 = Image(importo_progetti_progress_anno)
-#     story.append(img_2)
-#
-#     story.append(PageBreak())
-#     pdf_title_func("portafoglio ordine residuo", story)
-#     # Add the Altair chart image to the story
-#     img_3 = Image(portafoglio_ordine_residuo)
-#     story.append(img_3)
-#
-#
-#
-#
-#
-#     ########################################################################################################################
-# #TERZA PAGINA DEL PDF
-#
-#
-#     # Add a page break to start a new page
-#     story.append(PageBreak())
-#
-#     pdf_title_func("analisi ferie malattia", story)
-#     # Add the Altair chart image to the story
-#     img_4 = Image(analisi_ferie_malattia)
-#     story.append(img_4)
-#
-#     story.append(PageBreak())
-#     pdf_title_func("analisi permessi rol", story)
-#     # Add the Altair chart image to the story
-#     img_5 = Image(analisi_permessi_rol)
-#     story.append(img_5)
-#
-#     story.append(PageBreak())
-#     pdf_title_func("analisi assenze liberi professionisti", story)
-#     # Add the Altair chart image to the story
-#     img_6 = Image(analisi_assenze_liberi_professionisti)
-#     story.append(img_6)
-#
-#     story.append(PageBreak())
-#     pdf_title_func("giornate smart working", story)
-#     # Add the Altair chart image to the story
-#     img_7 = Image(giornate_smart_working)
-#     story.append(img_7)
-#
-#     story.append(PageBreak())
-#     pdf_title_func("timesheet mese", story)
-#     # Add the Altair chart image to the story
-#     img_8 = Image(timesheet_mese)
-#     story.append(img_8)
-#
-#     story.append(PageBreak())
-#     pdf_title_func("bu/h", story)
-#     # Add the Altair chart image to the story
-#     img_9 = Image(bu_h_pie)
-#     story.append(img_9)
-#
-#
-#
-#
-# ########################################################################################################################
-# #QUARTA PAGINA DEL PDF
-#
-#     story.append(PageBreak())
-#     # Create a title for the second page
-#     third_page_title = "CONTROLLO DI GESTIONE"
-#     third_page_title_style = getSampleStyleSheet()["Title"]
-#     third_page_title_paragraph = Paragraph(third_page_title, third_page_title_style)
-#     story.append(third_page_title_paragraph)
-#
-#     # Add some space below the second page title
-#     story.append(Spacer(1, 12))
-#
-#     # Add some space below the fourth page title
-#     story.append(Spacer(1, 12))
-#
-#     # Add the "OBIETTIVI 2023" and "COMMENTI" boxes
-#     data_objectives_comments = [
-#         ["OBIETTIVI 2023", "COMMENTI"],
-#         ["XXX", "XXX"]
-#     ]
-#
-#     table_data_objectives_comments = [[Paragraph(cell, getSampleStyleSheet()["Normal"]) for cell in row] for row in data_objectives_comments]
-#     table_objectives_comments = Table(table_data_objectives_comments, colWidths=[300, 300], rowHeights=[50, 50])
-#
-#     table_objectives_comments.setStyle(TableStyle([
-#         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-#         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#         ('SIZE', (0, 0), (-1, -1), 36),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-#     ]))
-#
-#     story.append(table_objectives_comments)
-#
-#
-# ########################################################################################################################
-#
-#     # Build the PDF document
-#     doc.build(story)
 
-#     return buffer.read()
-#
-#
-#
-# if __name__ == "__main__":
-#     generate_pdf()
+
+def draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset):
+    total_width = num_boxes * (box_width + 10)
+    starting_x_offset = (pdf._pagesize[0] - total_width) / 2
+
+    for i in range(num_boxes):
+        current_x_offset = starting_x_offset + i * (box_width + 10)
+        underline_y_offset = current_y_offset + 62
+
+
+        pdf.rect(current_x_offset, current_y_offset, box_width, box_height, stroke=1, fill=0)
+
+        # Add the title above the number
+        title_text = box_titles[i]
+        title_x_position = current_x_offset + box_width / 2
+        title_y_position = current_y_offset + box_height - 15
+
+        pdf.setFont("Times-Bold", 12)  # Set initial font size
+        font_size = 12  # Initial font size
+        while pdf.stringWidth(title_text, "Times-Bold", font_size) > box_width - 10 and font_size > 5:
+            font_size -= 1
+        pdf.setFont("Times-Bold", font_size)
+        pdf.drawCentredString(title_x_position, title_y_position, title_text)
+
+        # Add underline under the title
+        underline_length = box_width
+        pdf.line(current_x_offset + (box_width - underline_length) / 2, underline_y_offset,
+                 current_x_offset + (box_width + underline_length) / 2, underline_y_offset)
+
+        # Add the number inside the box
+        value_text = box_values[i]
+        value_x_position = current_x_offset + box_width / 2
+        value_y_position = current_y_offset + box_height / 3
+
+        pdf.setFont("Helvetica-Bold", 24)
+        font_size = 24  # Reset font size for number
+        while pdf.stringWidth(value_text, "Helvetica-Bold", font_size) > box_width - 10 and font_size > 5:
+            font_size -= 1
+        pdf.setFont("Helvetica-Bold", font_size)
+        pdf.drawCentredString(value_x_position, value_y_position, value_text)
+
+def draw_chart_under_description(pdf, chart_path, y_offset, logo_width, logo_height):
+
+    # Calculate the position for the center of the page
+    x_offset = (pdf._pagesize[0] - logo_width) / 2
+
+    pdf.drawInlineImage(chart_path, x=x_offset, y=y_offset - logo_height - 20, width=logo_width,
+                        height=logo_height)
+
+
+
+
+def create_pdf(file_path):
+    # Create a PDF document
+    pdf = canvas.Canvas(file_path, pagesize=letter)
+
+    # HEADER START
+    image_path_header = r"C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\imgs\logo_accaeffe.jpg"
+    header(pdf, image_path_header)
+    # HEADER END
+
+    # TITLE START
+    title(pdf, text="REPORT KPI MESE 2023", y_offset=680)
+    # TITLE END
+
+    # DESCRIPTIONS START
+    descriptions(pdf, text_1="Autore del report: Christian Trocino", text2="Dati aggiornati al XX/XX/XXXX", x_offset=50,
+                 y_offset=650)
+    # DESCRIPTIONS END
+
+    # TITLE_2 START
+    title(pdf, text="PERIODO DI RIFERIMENTO: MESE 2023", y_offset=600)
+    # TITLE_2 END
+
+    # BOX_1 START
+    #TAKE ALL THE VALUES FROM DATA TO SCORE
+    tot_prev_evasi_mese = data_to_score.n_tot_prev_evasi_mese()
+    tot_prev_acc_mese = data_to_score.n_tot_prev_accettati_mese()
+    tot_prev_acc_cons = data_to_score.prev_acc_consuntivo()
+    tot_prev_evasi_tot = data_to_score.importo_tot_prev_evasi()
+
+    num_boxes = 4
+    box_titles = ["N. Tot. Prev. Evasi", "N. Tot. Prev. Accettati", "N. Tot. Prev. Acc. consuntivo ",
+                  "Importo. Tot. Prev. Evasi"]
+    box_values = [str(tot_prev_evasi_mese), str(tot_prev_acc_mese), str(tot_prev_acc_cons), str(tot_prev_evasi_tot)]
+    box_width = 120
+    box_height = 80
+
+    draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=480)
+    # BOX_1 END
+
+    #TITLE_3 START
+    title(pdf, text="PERIODO DI RIFERIMENTO: ANNO 2023", y_offset=450)
+    # TITLE_3 END
+
+    # BOX_2 START
+    # TAKE ALL THE VALUES FROM DATA TO SCORE
+    tot_prev_acc = data_to_score.n_tot_prev_accettati_anno()
+    tot_prev_acc_importo = data_to_score.importo_tot_prev_accettati()
+
+
+    num_boxes = 2
+    box_titles = ["N. Tot. Prev. Accettati", "Importo. Tot. Prev. Accettati"]
+    box_values = [str(tot_prev_acc), str(tot_prev_acc_importo)]
+    box_width = 120
+    box_height = 80
+
+    draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=340)
+    # BOX_2 END
+
+    # BOX_3 START
+    # TAKE ALL THE VALUES FROM DATA TO SCORE
+    fatturato_ad_oggi = data_to_score.fatturato_ad_oggi()
+    fatturato_da_emettere = data_to_score.fatturato_da_emettere()
+    fatturato_previsto = data_to_score.fatturato_prev_2023()
+
+    num_boxes = 3
+    box_titles = ["FATTURATO AD OGGI", "FATTURATO DA EMETTERE", "FATTURATO PREVISTO 2023"]
+    box_values = [str(fatturato_ad_oggi), str(fatturato_da_emettere), str(fatturato_previsto)]
+    box_width = 120
+    box_height = 80
+
+    draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=240)
+    # BOX_3 END
+
+
+
+
+    # FOOTER START
+    image_path_footer = r"C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\imgs\footer_HF.png"
+    footer(pdf, image_path_footer)
+    # FOOTER END
+########################################################################################################################
+    # SECOND PAGE START
+    pdf.showPage()
+    # HEADER START
+    header(pdf, image_path_header)
+    # HEADER END
+
+    # TITLE_3
+    title(pdf, text="ANALISI OPERATIVA PROGETTI", y_offset=680)
+    # TITLE_3
+
+    # DESCRIPTIONS + IMG START
+    descriptions(pdf, text_1="N Progetti in progress su PM", text2="", x_offset=50, y_offset=660)
+    # Draw Altair chart image under the description
+    #chart_path = data_to_chart.n_progetti_in_progress_su_pm()
+    chart_path = r'pngs_of_charts/chart_1.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=670, logo_width=450, logo_height=200)
+
+    descriptions(pdf, text_1="Importi Progetti in progress per ANNO", text2="", x_offset=50, y_offset=450)
+    #chart_path = data_to_chart.importo_progetti_progress_anno()
+    chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_2.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=465, logo_width=450, logo_height=180)
+
+    descriptions(pdf, text_1="Importo Progetti in progress per BU", text2="", x_offset=50, y_offset=250)
+    #chart_path = data_to_chart.portafoglio_ordine_residuo()
+    chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_3.png'
+    draw_chart_under_description(pdf, chart_path, y_offset=265, logo_width=450, logo_height=130)
+
+    # DESCRIPTIONS + IMG END
+
+    # FOOTER START
+    footer(pdf, image_path_footer)
+    # FOOTER END
+
+    # SECOND PAGE END
+
+    # Save the PDF to the specified file path
+    pdf.save()
+
+
+# Specify the file path for the PDF
+pdf_file_path = "pdf_with_image.pdf"
+
+# Call the function to create the PDF with the image
+create_pdf(pdf_file_path)
+
+print(f"PDF with image created successfully at: {pdf_file_path}")
+
 
 
 
