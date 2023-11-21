@@ -5,7 +5,7 @@ from reportlab.lib.utils import ImageReader
 
 from monday_data_extraction import data_to_chart
 from monday_data_extraction import data_to_score
-def header(pdf, header_path):
+def header(pdf):
     # HEADER
     # Get the dimensions of the img
     x_offset = 550
@@ -14,13 +14,15 @@ def header(pdf, header_path):
     # Add an image at the top as a header
     logo_width = 110  # Adjust the width of the image as needed
     logo_height = 100  # Adjust the height of the image as needed
+    header_path = r"monday_data_extraction\imgs\logo_accaeffe.jpg"
+
     pdf.drawInlineImage(header_path, x=x_offset - logo_width / 1, y=y_offset - logo_height - 20, width=logo_width,
                         height=logo_height)
 
     # HEADER
 
 
-def footer(pdf, footer_path):
+def footer(pdf):
     # FOOTER
     # Get the dimensions of the img
     x_offset = 550
@@ -29,6 +31,7 @@ def footer(pdf, footer_path):
     # Add an image at the top as a header
     logo_width = 480  # Adjust the width of the image as needed
     logo_height = 100  # Adjust the height of the image as needed
+    footer_path = r"monday_data_extraction\imgs\footer_HF.png"
 
     pdf.drawInlineImage(footer_path, x=x_offset - logo_width / 1, y=y_offset - logo_height - 20, width=logo_width,
                         height=logo_height)
@@ -117,8 +120,7 @@ def create_pdf(file_path):
     pdf = canvas.Canvas(file_path, pagesize=letter)
 
     # HEADER START
-    image_path_header = r"C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\imgs\logo_accaeffe.jpg"
-    header(pdf, image_path_header)
+    header(pdf)
     # HEADER END
 
     # TITLE START
@@ -189,14 +191,13 @@ def create_pdf(file_path):
 
 
     # FOOTER START
-    image_path_footer = r"C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\imgs\footer_HF.png"
-    footer(pdf, image_path_footer)
+    footer(pdf)
     # FOOTER END
 ########################################################################################################################
     # SECOND PAGE START
     pdf.showPage()
     # HEADER START
-    header(pdf, image_path_header)
+    header(pdf)
     # HEADER END
 
     # TITLE_3 START
@@ -224,7 +225,7 @@ def create_pdf(file_path):
     # DESCRIPTIONS + IMG END
 
     # FOOTER START
-    footer(pdf, image_path_footer)
+    footer(pdf)
     # FOOTER END
 
     # SECOND PAGE END
@@ -232,7 +233,7 @@ def create_pdf(file_path):
     # THIRD PAGE START
     pdf.showPage()
     # HEADER START
-    header(pdf, image_path_header)
+    header(pdf)
     # HEADER END
 
     # TITLE_4 START
@@ -243,7 +244,7 @@ def create_pdf(file_path):
 
     descriptions(pdf, text_1="Analisi Ferie - Malattia - Dayhospital - Dipendenti", text2="", x_offset=50, y_offset=660)
     # Draw Altair chart image under the description
-    chart_path = data_to_chart.data_to_analisi_ferie_malattia()
+    chart_path = data_to_chart.analisi_ferie_malattia()
     #chart_path = r'pngs_of_charts/chart_4.png'
     draw_chart_under_description(pdf, chart_path, y_offset=670, logo_width=450, logo_height=200)
 
@@ -261,7 +262,7 @@ def create_pdf(file_path):
 
 
     # FOOTER START
-    footer(pdf, image_path_footer)
+    footer(pdf)
     # FOOTER END
     # THIRD PAGE END
 
@@ -270,7 +271,7 @@ def create_pdf(file_path):
     # FOURTH PAGE START
     pdf.showPage()
     # HEADER START
-    header(pdf, image_path_header)
+    header(pdf)
     # HEADER END
 
     # TITLE_4 START
@@ -281,31 +282,31 @@ def create_pdf(file_path):
 
     descriptions(pdf, text_1="Analisi Assenze Liberi Professionisti", text2="", x_offset=50, y_offset=660)
     # Draw Altair chart image under the description
-    chart_path = data_to_chart.data_to_analisi_ferie_malattia()
+    chart_path = data_to_chart.analisi_assenze_liberi_professionisti()
     #chart_path = r'pngs_of_charts/chart_7.png'
     draw_chart_under_description(pdf, chart_path, y_offset=670, logo_width=450, logo_height=200)
 
     descriptions(pdf, text_1="Timesheet Mese", text2="", x_offset=50, y_offset=450)
-    chart_path = data_to_chart.analisi_permessi_rol()
+    chart_path = data_to_chart.timesheet_mese()
     #chart_path = r'pngs_of_charts\chart_8.png'
     draw_chart_under_description(pdf, chart_path, y_offset=465, logo_width=450, logo_height=180)
 
     descriptions(pdf, text_1="BU/h", text2="", x_offset=50, y_offset=250)
-    chart_path = data_to_chart.giornate_smart_working()
+    chart_path = data_to_chart.bu_h_pie()
     #chart_path = r'pngs_of_charts\chart_9.png'
     draw_chart_under_description(pdf, chart_path, y_offset=265, logo_width=450, logo_height=130)
 
     # DESCRIPTIONS + IMG END
 
     # FOOTER START
-    footer(pdf, image_path_footer)
+    footer(pdf)
     # FOOTER END
     # FOURTH PAGE END
 ########################################################################################################################
     # FIFTH PAGE START
     pdf.showPage()
     # HEADER START
-    header(pdf, image_path_header)
+    header(pdf)
     # HEADER END
 
     # BOX_1 START
@@ -321,11 +322,15 @@ def create_pdf(file_path):
 
 
     # FOOTER START
-    footer(pdf, image_path_footer)
+    footer(pdf)
     # FOOTER END
     # FIFTH PAGE END
     # Save the PDF to the specified file path
     pdf.save()
+
+    return pdf
+
+
 
 
 # Specify the file path for the PDF
