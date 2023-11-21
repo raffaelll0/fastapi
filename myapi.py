@@ -60,7 +60,7 @@ def generate_pdf(background_tasks: BackgroundTasks):
             return {"message": "PDF is not ready yet. Try again later."}
 
 @app.get("/upload_to_monday")
-def upload_pdf_to_monday(pdf_path:str):
+def upload_pdf_to_monday():
     """
     THIS FUNCTION MAKES A QUERY TO THE ITEM ID WE PREVIOUSLY HAVE CLICKED(BTN)
     DEFINES IN WICH COLUMN TO UPLOAD THE PDF, (IN THIS CASE 'file')
