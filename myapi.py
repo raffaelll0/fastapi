@@ -54,7 +54,11 @@ def generate_pdf(background_tasks: BackgroundTasks):
 
         if os.path.exists(pdf_path):
             #pdf_bytes = open(pdf_path, "rb").read()
-            return pdf_path    #StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",headers={"Content-Disposition": "attachment;filename=blank.pdf"})
+
+            query = 'mutation($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
+            data = {'query': query}
+            files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'), 'contenttype'))]
+            #return pdf_path    #StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",headers={"Content-Disposition": "attachment;filename=blank.pdf"})
             switch = 1
         else:
             return {"message": "PDF is not ready yet. Try again later."}
@@ -86,7 +90,7 @@ def upload_pdf_to_monday():
     pdf_path = generate_pdf()
     query = 'mutation($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
     data = {'query': query}
-    files = [('variables[file]', ('hello.pdf', open(pdf_path,'rb'),'contenttype'))]
+    files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'),'contenttype'))]
     response = requests.request("POST", apiUrl, headers=headers, data=data, files=files)
 
 
