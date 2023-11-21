@@ -43,14 +43,15 @@ def generate_pdf(background_tasks: BackgroundTasks):
     # Start the background task for PDF generation
     background_tasks.add_task(generate_pdf_task, file_path="pdf_with_image.pdf")
 
-
     pdf_path = "pdf_with_image.pdf"
-    while os.path.exists(pdf_path):
+
+    while switch == 0:
 
         if os.path.exists(pdf_path):
             pdf_bytes = open(pdf_path, "rb").read()
             return StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",
                                      headers={"Content-Disposition": "attachment;filename=blank.pdf"})
+            switch = 1
         else:
             return {"message": "PDF is not ready yet. Try again later."}
 
