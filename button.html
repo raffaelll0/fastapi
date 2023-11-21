@@ -10,28 +10,5 @@
     <h1>PDF Generator</h1>
     <button id="generatePdfButton">Generate PDF</button>
 
-    <script>
-        document.getElementById("generatePdfButton").addEventListener("click", async () => {
-            // Call the API endpoint to generate the PDF
-            const response = await fetch("/generate_pdf", { method: "GET" });
-
-            // Check if the request was successful (status code 200)
-            if (response.ok) {
-                // Download the generated PDF
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "blank.pdf";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            } else {
-                // Handle the error
-                console.error("Failed to generate PDF");
-            }
-        });
-    </script>
 </body>
 </html>
