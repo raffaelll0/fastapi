@@ -25,12 +25,11 @@
 
 import os
 import time
-import json
-from fastapi.responses import JSONResponse
-from fastapi import FastAPI, BackgroundTasks
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
+from fastapi.responses import StreamingResponse, JSONResponse
 from io import BytesIO
 from monday_data_extraction import pdf_gen
+
 
 app = FastAPI()
 
@@ -59,45 +58,18 @@ def generate_pdf(background_tasks: BackgroundTasks):
             return {"message": "PDF is not ready yet. Try again later."}
 
 @app.post("/webhook")
-def monday_webhook(request):
-    """
-    THIS VIEW IS ACTIVATED WHEN A WEBHOOK IS SENT FROM MONDAY.COM
-    IT TAKES THE REQUEST, PARSE IT AS JSON
-    CHECKS IF THERE'S A DICTIONARY WITH A CHALLENGE KEY AND A VALUE
-    IF IT EXISTS IT SENDS IT BACK, IF CORRECT, THE CONNECTION IS TRUE
+async def webhook(request: Request):
+    try:
+        data = await request.json()
+        challenge = data.get('challenge')
 
-    WE THEN USE THE DATA OF THE WEBHOOK TO EXTRACT VALUES FROM A BOARD
-    (THIS IS DONE WHEN data_extraction() IS CALLED)
+        if challenge:
+            return JSONResponse(content={'challenge': challenge})
 
-    Args:
-        data: parsed json of the data that the webhook gives
-        challenge: is in a dictionary and contains a value(int)
-        data_extraction(): a function that extracts data via api req
-        nome, cognome, p_iva: values taken from data_extraction()
-        pdf_view(): is called once the webhook is true,
-                    to upload the pdf in monday
+        # Add your logic for handling the POST request here
 
-    Returns:
-        THIS VIEW RETURNS THE CHALLENGE TO MONDAY.COM,
-        THE webhook.html AND A MESSAGE ON THE WEBPAGE
-    """
-    if request.method == 'POST':
-        try:
-            # Parse the JSON data from the request body
-            data = json.loads(request.body.decode('utf-8'))
-
-            # manage first call from monday.com by sending the challenge token back
-            challenge = data.get('challenge')
-            if challenge:
-                # Respond with the challenge to verify the connection
-                return JSONResponse({'challenge': challenge})
-
-
-            #upload_pdf_to_monday(pdf_path, id_polizza)
-            #print("pdf uploaded to monday!")
-
-        except Exception as e:
-            return JSONResponse({'error': str(e)}, status=500)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def webhook():
