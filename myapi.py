@@ -30,6 +30,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from io import BytesIO
 from monday_data_extraction import pdf_gen
 from monday_data_extraction.monday import *
+import requests
 
 
 app = FastAPI()
@@ -88,12 +89,15 @@ def upload_pdf_to_monday():
     """
     print("upload pdf....")
 
-    pdf_path = generate_pdf()
-    query = 'mutation($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
+    pdf_path = "pdf_with_image.pdf"
+    query = 'mutation add_file ($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
+    print("query passed....")
     data = {'query': query}
-    files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'),'contenttype'))]
+    files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'), 'contenttype'))]
     response = requests.request("POST", apiUrl, headers=headers, data=data, files=files)
+    print(response.text)
 
+upload_pdf_to_monday()
 
 @app.post("/webhook")
 async def webhook(request: Request):
