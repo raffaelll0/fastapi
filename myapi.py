@@ -24,7 +24,7 @@ app = FastAPI()
 
 
 # Mount the "templates" folder to serve HTML files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 @app.get("/", response_class=FileResponse)
 async def read_root():
