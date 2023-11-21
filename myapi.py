@@ -59,7 +59,7 @@ def generate_pdf(background_tasks: BackgroundTasks):
         else:
             return {"message": "PDF is not ready yet. Try again later."}
 
-
+@app.get("/upload_to_monday")
 def upload_pdf_to_monday(pdf_path:str):
     """
     THIS FUNCTION MAKES A QUERY TO THE ITEM ID WE PREVIOUSLY HAVE CLICKED(BTN)
@@ -83,7 +83,7 @@ def upload_pdf_to_monday(pdf_path:str):
     """
     print("upload pdf....")
 
-
+    pdf_path = generate_pdf()
     query = 'mutation($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
     data = {'query': query}
     files = [('variables[file]', ('hello.pdf', open(pdf_path,'rb'),'contenttype'))]
