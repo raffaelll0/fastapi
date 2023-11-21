@@ -59,6 +59,7 @@ def generate_pdf(background_tasks: BackgroundTasks):
             data = {'query': query}
             files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'), 'contenttype'))]
             #return pdf_path    #StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",headers={"Content-Disposition": "attachment;filename=blank.pdf"})
+            return {"message": "PDF uploaded"}
             switch = 1
         else:
             return {"message": "PDF is not ready yet. Try again later."}
