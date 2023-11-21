@@ -42,7 +42,18 @@ def generate_pdf_task(file_path: str):
 def generate_pdf(background_tasks: BackgroundTasks):
     # Start the background task for PDF generation
     background_tasks.add_task(generate_pdf_task, file_path="pdf_with_image.pdf")
-    return {"message": "PDF generation started. Check back later."}
+
+
+    pdf_path = "pdf_with_image.pdf"
+    while os.path.exists(pdf_path):
+
+        if os.path.exists(pdf_path):
+            pdf_bytes = open(pdf_path, "rb").read()
+            return StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",
+                                     headers={"Content-Disposition": "attachment;filename=blank.pdf"})
+        else:
+            return {"message": "PDF is not ready yet. Try again later."}
+
 
 @app.get("/get_pdf")
 def get_pdf():
@@ -60,5 +71,8 @@ if __name__ == "__main__":
 
 
 
+def webhook():
+    pdfpath = generate_pdf()
+    upload_pdf_to_monday(pdfpath, boardId)
 
 
