@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from io import BytesIO
 from monday_data_extraction import pdf_gen
 
-app = FastAPI()
+#app = FastAPI()
 
 
 # @app.get("/")
@@ -23,19 +23,40 @@ app = FastAPI()
 # download_blank_pdf()
 
 
-# Mount the "templates" folder to serve HTML files
-app.mount("/static", StaticFiles(directory="."), name="static")
+import os
+import time
+from fastapi import FastAPI, BackgroundTasks
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+from monday_data_extraction import pdf_gen
 
-@app.get("/", response_class=FileResponse)
-async def read_root():
-    return FileResponse("button.html")
+app = FastAPI()
+
+def generate_pdf_task(file_path: str):
+    # Simulate a long-running task (replace with your actual PDF generation logic)
+    time.sleep(60)
+    pdf_bytes = pdf_gen.create_pdf(file_path=file_path)
+    return pdf_bytes
 
 @app.get("/generate_pdf")
-def generate_pdf():
-    # Call the generate_pdf function in the main file
-    pdf_bytes = pdf_gen.create_pdf(file_path="pdf_with_image.pdf")
-    return StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf", headers={"Content-Disposition": "attachment;filename=blank.pdf"})
+def generate_pdf(background_tasks: BackgroundTasks):
+    # Start the background task for PDF generation
+    background_tasks.add_task(generate_pdf_task, file_path="pdf_with_image.pdf")
+    return {"message": "PDF generation started. Check back later."}
 
+@app.get("/get_pdf")
+def get_pdf():
+    # Check if the PDF file is ready and return it as a response
+    pdf_path = "pdf_with_image.pdf"
+    if os.path.exists(pdf_path):
+        pdf_bytes = open(pdf_path, "rb").read()
+        return StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf", headers={"Content-Disposition": "attachment;filename=blank.pdf"})
+    else:
+        return {"message": "PDF is not ready yet. Try again later."}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
 
 
 
