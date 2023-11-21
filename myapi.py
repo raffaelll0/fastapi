@@ -28,7 +28,7 @@ app.mount("/static", StaticFiles(directory="."), name="static")
 
 @app.get("/", response_class=FileResponse)
 async def read_root():
-    return FileResponse("static/button.html")
+    return FileResponse("button.html")
 
 @app.get("/generate_pdf")
 def generate_pdf():
