@@ -1,6 +1,6 @@
 import altair as alt
 import pandas as pd
-
+import os
 from monday_data_extraction import monday
 from monday_data_extraction.monday import get_first_and_last_day_of_current_month, get_items
 
@@ -59,7 +59,8 @@ def n_progetti_in_progress_su_pm():
 
 
 
-  chart_path = r'pngs_of_charts\chart_1.png'
+  chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_1.png")
+
 
   chart.save(chart_path)
 
@@ -104,7 +105,7 @@ def importo_progetti_progress_anno():
         tooltip=['anno:N', 'sum(value):Q']
     ).properties(width=600, height=200)
 
-    chart_path = r'pngs_of_charts\chart_2.png'
+    chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_2.png")
 
     chart.save(chart_path)
 
@@ -149,7 +150,7 @@ def portafoglio_ordine_residuo():
 
     ).interactive().properties(width=600, height=200, title="in progress")
 
-    chart_path = r'pngs_of_charts\chart_3.png'
+    chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_3.png")
 
     chart.save(chart_path)
 
@@ -195,7 +196,7 @@ def analisi_ferie_malattia():
         tooltip=['utente', 'valore']
     ).interactive().properties(width=600, height=200)
 
-    chart_path = r'pngs_of_charts\chart_4.png'
+    chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_4.png")
 
     chart.save(chart_path)
 
@@ -239,7 +240,7 @@ def analisi_permessi_rol():
         tooltip=['utente', 'valore']
     ).interactive().properties(width=600, height=200)
 
-    chart_path = r'pngs_of_charts\chart_5.png'
+    chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_5.png")
 
     chart.save(chart_path)
 
@@ -283,7 +284,7 @@ def analisi_assenze_liberi_professionisti():
         tooltip=['utente', 'valore']
     ).interactive().properties(width=600, height=200)
 
-    chart_path = r'pngs_of_charts\chart_6.png'
+    chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_6.png")
 
     chart.save(chart_path)
 
@@ -327,7 +328,7 @@ def giornate_smart_working():
   tooltip=['nome_lavoratore','count']
   ).interactive().properties(width=600, height=200)
 
-  chart_path = r'pngs_of_charts\chart_7.png'
+  chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_7.png")
 
   chart.save(chart_path)
 
@@ -372,7 +373,7 @@ def timesheet_mese():
       tooltip=['nome_lavoratore','ore_rendicontate', 'bu']
       ).interactive().properties(width=600, height=200)
 
-  chart_path = r'pngs_of_charts\chart_8.png'
+  chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_8.png")
 
   chart.save(chart_path)
 
@@ -414,7 +415,7 @@ def bu_h_pie():
     color="bu",
     tooltip=["bu", "ore_rendicontate"]
   ).properties(width=600, height=200)
-  chart_path = r'pngs_of_charts\chart_9.png'
+  chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_9.png")
 
   chart.save(chart_path)
 
