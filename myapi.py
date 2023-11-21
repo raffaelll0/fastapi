@@ -58,7 +58,7 @@ def generate_pdf(background_tasks: BackgroundTasks):
         else:
             return {"message": "PDF is not ready yet. Try again later."}
 
-@app.get("/webhook")
+@app.post("/webhook")
 def monday_webhook(request):
     """
     THIS VIEW IS ACTIVATED WHEN A WEBHOOK IS SENT FROM MONDAY.COM
@@ -103,5 +103,7 @@ def monday_webhook(request):
 def webhook():
     pdfpath = generate_pdf()
     upload_pdf_to_monday(pdfpath, boardId)
+
+
 
 
