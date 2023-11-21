@@ -2,6 +2,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.utils import ImageReader
+import os
+from io import BytesIO
 
 from monday_data_extraction import data_to_chart
 from monday_data_extraction import data_to_score
@@ -14,13 +16,13 @@ def header(pdf):
     # Add an image at the top as a header
     logo_width = 110  # Adjust the width of the image as needed
     logo_height = 100  # Adjust the height of the image as needed
-    header_path = r"monday_data_extraction\imgs\logo_accaeffe.jpg"
+    # Use os.path.join to construct the absolute path
+    header_path = os.path.join(os.path.dirname(__file__), "imgs", "logo_accaeffe.jpg")
 
     pdf.drawInlineImage(header_path, x=x_offset - logo_width / 1, y=y_offset - logo_height - 20, width=logo_width,
                         height=logo_height)
 
     # HEADER
-
 
 def footer(pdf):
     # FOOTER
@@ -31,7 +33,8 @@ def footer(pdf):
     # Add an image at the top as a header
     logo_width = 480  # Adjust the width of the image as needed
     logo_height = 100  # Adjust the height of the image as needed
-    footer_path = r"monday_data_extraction\imgs\footer_HF.png"
+
+    footer_path = os.path.join(os.path.dirname(__file__), "imgs", "footer_HF.png")
 
     pdf.drawInlineImage(footer_path, x=x_offset - logo_width / 1, y=y_offset - logo_height - 20, width=logo_width,
                         height=logo_height)
@@ -116,6 +119,8 @@ def draw_chart_under_description(pdf, chart_path, y_offset, logo_width, logo_hei
 
 
 def create_pdf(file_path):
+    # Create a BytesIO buffer to capture the PDF content
+    buffer = BytesIO()
     # Create a PDF document
     pdf = canvas.Canvas(file_path, pagesize=letter)
 
@@ -328,7 +333,13 @@ def create_pdf(file_path):
     # Save the PDF to the specified file path
     pdf.save()
 
-    return pdf
+    # Get the content of the buffer (bytes) and return it
+    pdf_bytes = buffer.getvalue()
+
+    # Close the buffer to free up resources
+    buffer.close()
+
+    return pdf_bytes
 
 
 
@@ -337,7 +348,7 @@ def create_pdf(file_path):
 pdf_file_path = "pdf_with_image.pdf"
 
 # Call the function to create the PDF with the image
-#create_pdf(pdf_file_path)
+create_pdf(pdf_file_path)
 
 print(f"PDF with image created successfully at: {pdf_file_path}")
 
