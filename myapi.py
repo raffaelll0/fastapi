@@ -44,6 +44,7 @@ def generate_pdf(background_tasks: BackgroundTasks):
     background_tasks.add_task(generate_pdf_task, file_path="pdf_with_image.pdf")
 
     pdf_path = "pdf_with_image.pdf"
+    switch = 0
 
     while switch == 0:
 
