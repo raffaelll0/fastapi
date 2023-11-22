@@ -8,7 +8,7 @@ from datetime import datetime
 
 def is_first_day_of_month():
     today = datetime.now().day
-    return today == 22
+    return today == 1
 
 
 app = FastAPI()
@@ -47,9 +47,6 @@ def generate_pdf(background_tasks: BackgroundTasks):
     background_tasks.add_task(generate_pdf_task, file_path="pdf_with_image.pdf")
     pdf_path = "pdf_with_image.pdf"
 
-    # switch = 0
-    #
-    # while switch == 0:
 
     if os.path.exists(pdf_path) & is_first_day_of_month():
         upload_pdf_to_monday(pdf_path)
