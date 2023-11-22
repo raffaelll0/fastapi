@@ -1,7 +1,6 @@
 import os
 import time
-from fastapi import FastAPI, BackgroundTasks, HTTPException
-from io import BytesIO
+from fastapi import FastAPI, BackgroundTasks
 from monday_data_extraction import pdf_gen
 import requests
 from datetime import datetime
@@ -9,13 +8,8 @@ from datetime import datetime
 
 def is_first_day_of_month():
     today = datetime.now().day
-    return today == 22
+    return today == 1
 
-if is_first_day_of_month():
-    print("message: its the 22")
-
-else:
-    print("its not the 22")
 
 app = FastAPI()
 
@@ -58,12 +52,10 @@ def generate_pdf(background_tasks: BackgroundTasks):
     while switch == 0:
 
         if os.path.exists(pdf_path) & is_first_day_of_month():
-            #pdf_bytes = open(pdf_path, "rb").read()
-
             upload_pdf_to_monday(pdf_path)
-            #return pdf_path    #StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",headers={"Content-Disposition": "attachment;filename=blank.pdf"})
             return {"message": "PDF uploaded"}
             switch = 1
+
         else:
             return {"message": "PDF is not ready yet. Try again later."}
 
