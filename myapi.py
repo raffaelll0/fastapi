@@ -8,7 +8,7 @@ from datetime import datetime
 
 def is_first_day_of_month():
     today = datetime.now().day
-    return today == 1
+    return today == 22
 
 
 app = FastAPI()
