@@ -8,7 +8,7 @@ from datetime import datetime
 
 def is_first_day_of_month():
     today = datetime.now().day
-    return today == 1
+    return today == 22
 
 
 app = FastAPI()
@@ -25,7 +25,7 @@ def upload_pdf_to_monday(pdf_path):
 
     url = "https://api.monday.com/v2/file"
 
-    payload = {'query': 'mutation add_file($file: File!) {add_file_to_column (item_id: 4494041652, column_id:"file" '
+    payload = {'query': 'mutation add_file($file: File!) {add_file_to_column (item_id: 5555606521, column_id:"file" '
                         'file: $file) {id}}', 'map': '{"image":"variables.file"}'}
     files = [
         ('image', ('report_da_aggiornare.pdf', open(pdf_path, 'rb'), 'application/pdf'))
