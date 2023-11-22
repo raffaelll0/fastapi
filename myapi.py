@@ -29,7 +29,6 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from io import BytesIO
 from monday_data_extraction import pdf_gen
-from monday_data_extraction.monday import *
 import requests
 
 
@@ -43,12 +42,32 @@ def generate_pdf_task(file_path: str):
     return pdf_bytes
 
 
+def upload_pdf_to_monday(pdf_path):
+
+    url = "https://api.monday.com/v2/file"
+
+    payload = {'query': 'mutation add_file($file: File!) {add_file_to_column (item_id: 4494041652, column_id:"file" '
+                        'file: $file) {id}}', 'map': '{"image":"variables.file"}'}
+    files = [
+        ('image', ('report_da_aggiornare.pdf', open(pdf_path, 'rb'), 'application/pdf'))
+    ]
+
+    headers = {
+        'Authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE0NTc5NTQ4MywiYWFpIjoxMSwidWlkIjoyNzk4NzQzMywiaWFkIjoiMjAyMi0wMi0xNFQwODoyOTo0NC4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTExOTUwMTIsInJnbiI6InVzZTEifQ.j052k96lwfIBOtLGWng2xmZul4c_rWnguMOTduJ95DM',
+        'Cookie': '__cf_bm=ZTReat.Jh1QkxowH5_Cmk7bZDpq6uFgjxdfrZNlLd7A-1700643090-0-ASmZC5ZBA5fxS+mIJ1iNrSTCn/SewsIy25w1YAjf3+fZrUAlosoXMsAZKJXhgDZda7vmP8EdLTPXf0yri68AqbedOhMC4oFQ56at0xC63YYR'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload, files=files)
+
+    print(response.text)
+
+
 @app.get("/generate_pdf")
 def generate_pdf(background_tasks: BackgroundTasks):
     # Start the background task for PDF generation
     background_tasks.add_task(generate_pdf_task, file_path="pdf_with_image.pdf")
-
     pdf_path = "pdf_with_image.pdf"
+
     switch = 0
 
     while switch == 0:
@@ -56,9 +75,7 @@ def generate_pdf(background_tasks: BackgroundTasks):
         if os.path.exists(pdf_path):
             #pdf_bytes = open(pdf_path, "rb").read()
 
-            query = 'mutation($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
-            data = {'query': query}
-            files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'), 'contenttype'))]
+            upload_pdf_to_monday(pdf_path)
             #return pdf_path    #StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf",headers={"Content-Disposition": "attachment;filename=blank.pdf"})
             return {"message": "PDF uploaded"}
             switch = 1
@@ -66,38 +83,38 @@ def generate_pdf(background_tasks: BackgroundTasks):
             return {"message": "PDF is not ready yet. Try again later."}
 
 @app.get("/upload_to_monday")
-def upload_pdf_to_monday():
-    """
-    THIS FUNCTION MAKES A QUERY TO THE ITEM ID WE PREVIOUSLY HAVE CLICKED(BTN)
-    DEFINES IN WICH COLUMN TO UPLOAD THE PDF, (IN THIS CASE 'file')
-    AND THEN USES THE PATH OF THE PDF IN THE pdf_view, THIS FUNCTION WORKS IF IT
-    IS CALLED IN THE pdf_view SINCE WE HAVE THE PATH INSIDE OF IT
+# def upload_pdf_to_monday():
+#     """
+#     THIS FUNCTION MAKES A QUERY TO THE ITEM ID WE PREVIOUSLY HAVE CLICKED(BTN)
+#     DEFINES IN WICH COLUMN TO UPLOAD THE PDF, (IN THIS CASE 'file')
+#     AND THEN USES THE PATH OF THE PDF IN THE pdf_view, THIS FUNCTION WORKS IF IT
+#     IS CALLED IN THE pdf_view SINCE WE HAVE THE PATH INSIDE OF IT
+#
+#
+#     Args:
+#         apiKey: key to access monday.com via api
+#         apiUrl: url of monday.com
+#         headers: returns a keyvalue dictionary with the api key
+#         query: this defines the steps to add the file with in the specific column
+#         payload: via query it defines where to upload the file
+#
+#
+#
+#     Returns:
+#          response
+#
+#     """
+#     print("upload pdf....")
+#
+#     pdf_path = "pdf_with_image.pdf"
+#     query = 'mutation add_file ($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
+#     print("query passed....")
+#     data = {'query': query}
+#     files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'), 'contenttype'))]
+#     response = requests.request("POST", apiUrl, headers=headers, data=data, files=files)
+#     print(response.text)
 
 
-    Args:
-        apiKey: key to access monday.com via api
-        apiUrl: url of monday.com
-        headers: returns a keyvalue dictionary with the api key
-        query: this defines the steps to ad  the file with in the specific column
-        payload: via query it defines where to upload the file
-
-
-
-    Returns:
-         response
-
-    """
-    print("upload pdf....")
-
-    pdf_path = "pdf_with_image.pdf"
-    query = 'mutation add_file ($file: File!) {add_file_to_column(file: $file, item_id: 4494285664, column_id: "file") {id}}'
-    print("query passed....")
-    data = {'query': query}
-    files = [('variables[file]', ('hello.pdf', open(pdf_path, 'rb'), 'contenttype'))]
-    response = requests.request("POST", apiUrl, headers=headers, data=data, files=files)
-    print(response.text)
-
-upload_pdf_to_monday()
 
 @app.post("/webhook")
 async def webhook(request: Request):
@@ -114,6 +131,7 @@ async def webhook(request: Request):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
