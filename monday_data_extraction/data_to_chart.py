@@ -188,7 +188,7 @@ def analisi_ferie_malattia():
     counts = filtered_df.groupby(['utente']).agg({'valore': 'sum'}).reset_index()
 
     # Create an Altair chart
-    chart = alt.Chart(counts).mark_bar().encode(
+    chart = alt.Chart(counts).mark_bar(color='purple').encode(
         x=alt.X('utente',
                 title='Assenza (Professionisti)',
                 sort=alt.EncodingSortField(field='valore')),
@@ -232,7 +232,7 @@ def analisi_permessi_rol():
     counts = filtered_df.groupby(['utente']).agg({'valore': 'sum'}).reset_index()
 
     # Create an Altair chart
-    chart = alt.Chart(counts).mark_bar().encode(
+    chart = alt.Chart(counts).mark_bar(color='red').encode(
         x=alt.X('utente',
                 title='Assenza (Professionisti)',
                 sort=alt.EncodingSortField(field='valore')),
@@ -320,7 +320,7 @@ def giornate_smart_working():
 
 
   # Create an Altair chart
-  chart = alt.Chart(counts).mark_bar().encode(
+  chart = alt.Chart(counts).mark_bar(color='orange').encode(
   x=alt.X('nome_lavoratore',
           title='Nome Lavoratore',
           sort=alt.EncodingSortField(field='count')),
