@@ -1,7 +1,6 @@
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
-from reportlab.lib.utils import ImageReader
+from reportlab.lib.colors import black, white
 import os
 from io import BytesIO
 
@@ -107,6 +106,7 @@ def draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, cu
         pdf.setFont("Helvetica-Bold", font_size)
         pdf.drawCentredString(value_x_position, value_y_position, value_text)
 
+
 def draw_chart_under_description(pdf, chart_path, y_offset, logo_width, logo_height):
 
     # Calculate the position for the center of the page
@@ -116,6 +116,60 @@ def draw_chart_under_description(pdf, chart_path, y_offset, logo_width, logo_hei
                         height=logo_height)
 
 
+def box_titles(pdf, x_offset, y_offset, text_1):
+    # Add description lines
+    pdf.setFont("Helvetica", 12)  # Set font to regular and size 12
+    #pdf.drawString(x_offset, y_offset, text_1)
+    # Split the text into lines based on the newline character
+    lines = text_1.split('\n')
+
+    # Draw each line separately
+    for line in lines:
+        pdf.drawString(x_offset, y_offset, line)
+        y_offset -= 10  # Adjust the line spacing as needed
+
+
+def box_descriptions(pdf, x_offset, y_offset, num_sets):
+    for _ in range(num_sets):
+        n_boxes = 7  # Adjust the number of boxes as needed
+        box_details = [
+            ("Box 1"),
+            ("Box 2"),
+            ("Box 3"),
+            ("Box 4"),
+            ("Box 5"),
+            ("Box 6"),
+            ("Box 7")
+        ]
+        create_boxes(pdf, n_boxes, box_details, x_offset=x_offset, y_offset=y_offset, desc_height=15, custom_height=35)
+        y_offset -= 35
+
+def create_boxes(pdf, n_boxes, box_details, x_offset, y_offset, desc_height, custom_height=None):
+    box_width = 80  # Adjust the width of the box as needed
+    space_between_boxes = 0  # Adjust the space between boxes as needed
+
+    # Calculate the total horizontal space needed for all boxes
+    total_width = n_boxes * (box_width + space_between_boxes)
+
+    # Calculate the starting x position for the first box
+    x_position = (pdf._pagesize[0] - total_width) / 2 + x_offset
+
+    for i in range(n_boxes):
+
+        # Draw the box
+        pdf.setStrokeColor(black)
+        pdf.setFillColor(white)
+        box_height = custom_height if custom_height is not None else 60  # Adjust the height of the second line
+        pdf.rect(x_position, y_offset, box_width, box_height, fill=True)
+
+        # Set fill color to black for text
+        pdf.setFillColor(black)
+
+        # Add description lines under the box
+        box_titles(pdf, x_position, y_offset + desc_height, box_details[i])
+
+        # Update the x position for the next box
+        x_position += box_width + space_between_boxes
 
 
 def create_pdf(file_path):
@@ -330,6 +384,42 @@ def create_pdf(file_path):
     footer(pdf)
     # FOOTER END
     # FIFTH PAGE END
+########################################################################################################################
+    # SIXT PAGE START
+
+    pdf.showPage()
+    # HEADER START
+    header(pdf)
+    # HEADER END
+
+    # TITLE START
+    title(pdf, text="REPORT PM  Dettaglio: Lelenia Cacioppo", y_offset=680)
+    # TITLE END
+
+    # Create boxes with descriptions
+    n_boxes = 7  # Adjust the number of boxes as needed
+    box_details = [
+        (" Numero GU\n lavorate nel\n mese corrente"),
+        (" Contratto\n SI/NO"),
+        (" N Progetto"),
+        (" Imponibile "),
+        (" Fatturato"),
+        (" Da Fatturare"),
+        (" Data Prevista\n Chiusura")
+    ]
+
+    create_boxes(pdf, n_boxes, box_details, x_offset=0, desc_height=40, y_offset=550)
+
+    # Create multiple sets of boxes with descriptions
+    num_sets = 4  # Adjust the number of sets as needed
+    box_descriptions(pdf, x_offset=0, y_offset=515, num_sets=num_sets)
+
+    # FOOTER START
+    footer(pdf)
+    # FOOTER END
+    # FIFTH PAGE END
+########################################################################################################################
+
     # Save the PDF to the specified file path
     pdf.save()
 
@@ -348,7 +438,7 @@ def create_pdf(file_path):
 pdf_file_path = "pdf_with_image.pdf"
 
 # Call the function to create the PDF with the image
-#create_pdf(pdf_file_path)
+create_pdf(pdf_file_path)
 
 print(f"PDF with image created successfully at: {pdf_file_path}")
 
