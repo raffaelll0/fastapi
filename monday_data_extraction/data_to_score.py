@@ -3,6 +3,7 @@ import requests
 from monday_data_extraction import monday
 import pandas as pd
 from monday_data_extraction.monday import first_and_last_day_of_year, get_first_and_last_day_of_current_month
+import json
 
 apiKey = monday.apiKey
 apiUrl = monday.apiUrl
@@ -30,13 +31,10 @@ def n_tot_prev_accettati_anno():
             data_list.append({'id': id, 'anno': anno})
 
     df = pd.DataFrame(data_list)
-    df = df.drop_duplicates().reset_index(drop=True)
 
     count = len(df)
 
-
     return count
-
 
 
 def n_tot_prev_accettati_mese():
@@ -87,9 +85,7 @@ def n_tot_prev_evasi_mese():
 
     count = len(df)
 
-
     return count
-
 
 
 def prev_acc_consuntivo():
@@ -193,7 +189,8 @@ def importo_tot_prev_accettati():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
-    total_sum = '{:,.0f}'.format(float(total_sum))
+    total_sum = '{:,.2f}'.format(float(total_sum))
+
     return total_sum
 
 
@@ -227,14 +224,11 @@ def fatturato_prev_2023():
             print("Warning: Could not convert '{0}' to float. Skipping this value.".format(numeri_value))
 
     rounded_total_sum = round(total_sum, 2)
-    rounded_total_sum = '{:,.0f}'.format(float(total_sum))
+    rounded_total_sum = '{:,.2f}'.format(float(total_sum))
 
 
 
     return rounded_total_sum
-
-
-
 
 
 def fatturato_ad_oggi():
@@ -270,7 +264,7 @@ def fatturato_ad_oggi():
             print("Warning: Could not convert '{0}' to float. Skipping this value.".format(numeri_value))
 
     rounded_total_sum = round(total_sum, 2)
-    rounded_total_sum = '{:,.0f}'.format(float(total_sum))
+    rounded_total_sum = '{:,.2f}'.format(float(total_sum))
     return rounded_total_sum
 
 
@@ -307,10 +301,255 @@ def fatturato_da_emettere():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
-    total_sum = '{:,.0f}'.format(float(total_sum))
+    total_sum = '{:,.2f}'.format(float(total_sum))
 
 
     return total_sum
 
+########################################################################################################################
+#REPORT PM NEL DETTAGLIO
 
+def contratto_e_n_progetto():
+
+    #make the query
+
+    items = get_items(board_ids=[2286362570],
+                  column_values_ids=["file", "numeri0", "link_to_1__hf____offerte"],
+                  group_ids=["group_title"]
+                  )
+
+    # Initialize variables before the loop
+    data_list = []
+
+    # Loop through the data and create a dataframe
+    for item in items:
+      id = item['id']
+      file_count = item['column_values'][0]['value']
+      numero_progetto = item['column_values'][1]['text']
+      odv_string = item['column_values'][2]['value']
+      odv_data = json.loads(odv_string)
+
+      try:
+        odv_linked_pulse_ids = [item['linkedPulseId'] for item in odv_data['linkedPulseIds']]
+        odv_linked_pulse_ids = odv_linked_pulse_ids[0]
+      except:
+        odv_linked_pulse_ids = ""
+
+
+
+      if file_count is None:
+        file_count = "NO"
+      else:
+        file_count = "SI"
+
+      if numero_progetto is None:
+        numero_progetto = 'Assente'
+
+      data_list.append({'id_progetto': id, 'file': file_count, 'numero progetto': numero_progetto, "odv_linked_pulse_ids": odv_linked_pulse_ids})
+    df_progetto = pd.DataFrame(data_list)
+
+
+    return df_progetto
+
+
+def n_gu_mese():
+
+    first_day, last_day = get_first_and_last_day_of_current_month()
+
+    #make the query
+    items = get_items(board_ids=[3811872676],
+                  column_values_ids=["date", "numeric", "board_relation"],
+                  query_params_str='{rules: [{column_id: "date", compare_value: ["2023-11-01", "2023-11-30"], operator: between}]}', # TODO inserire le date di questo mese
+                  group_ids=["topics"],
+                  #limit = 500
+                  )
+
+    # Initialize variables before the loop
+    data_list = []
+
+    # Loop through the data and create a dataframe
+    for item in items:
+      id_rapportino = item['id']
+      date = item['column_values'][0]['text']
+      ore_rendicontate = item['column_values'][1]['text']
+      ore_rendicontate = float(ore_rendicontate)
+      pj_string = item['column_values'][2]['value']
+      pj_data = json.loads(pj_string)
+      try:
+        pj_linked_pulse_ids = [item['linkedPulseId'] for item in pj_data['linkedPulseIds']]
+        pj_linked_pulse_ids = pj_linked_pulse_ids[0]
+      except:
+        pj_linked_pulse_ids = ""
+
+
+
+
+
+
+      data_list.append({'id_rapportino': id_rapportino, 'date': date, 'ore_rendicontate': ore_rendicontate, "pj_linked_pulse_id": pj_linked_pulse_ids})
+
+
+    df_rapportino = pd.DataFrame(data_list)
+    # Group by 'pj_linked_pulse_id' and sum 'ore_rendicontate'
+    df_rapportino = df_rapportino.groupby('pj_linked_pulse_id')['ore_rendicontate'].sum().reset_index()
+
+    return df_rapportino
+
+
+def imponibile():
+    #make the query
+    items = get_items(board_ids=[2286362496],
+                  column_values_ids=["collega_schede19", "dup__of_importo_offerta", "collega_schede2"],
+                  group_ids=["nuovo_gruppo10114"],
+                  #limit = 30
+                  )
+
+
+      # Initialize variables before the loop
+    data_list = []
+    count = 0
+    # Loop through the data and create a dataframe
+    for item in items:
+      id_odv = item['id']
+      imponibile = item['column_values'][0]['text']
+      pj_string = item['column_values'][1]['value']
+      id_fattura = item['column_values'][2]['value']
+
+      if imponibile:
+        imponibile = float(imponibile)
+
+      else:
+        imponibile = 0
+
+      #TODO: rivedere perché non funziona
+      try:
+        pj_data = json.loads(pj_string)
+        pj_linked_pulse_ids = [item['linkedPulseId'] for item in pj_data['linkedPulseIds']]
+        pj_linked_pulse_ids = str(pj_linked_pulse_ids[0])
+      except:
+        pj_linked_pulse_ids = ""
+
+      try:
+        fattura_data = json.loads(id_fattura)
+        fattura_linked_pulse_ids = [item['linkedPulseId'] for item in fattura_data['linkedPulseIds']]
+        fattura_linked_pulse_ids = str(fattura_linked_pulse_ids[0])
+      except:
+        fattura_linked_pulse_ids = ""
+
+
+
+
+
+
+      data_list.append({'id_odv': id_odv, 'imponibile': imponibile,  "pj_linked_pulse_id": pj_linked_pulse_ids, "fattura_linked_pulse_ids": fattura_linked_pulse_ids})
+
+
+    df_odv = pd.DataFrame(data_list)
+
+    return df_odv
+
+
+def fatturato_data_chiusura():
+
+    #make the query
+    items = get_items(board_ids=[2430432761],
+                  column_values_ids=["dup__of_imponibile9", "link_to_1__hf____preventivi", "date4"],
+                  #limit = 300
+                  )
+
+    # Initialize variables before the loop
+    data_list = []
+
+    # Loop through the data and create a dataframe
+    for item in items:
+      id_fattura = item['id']
+      date = item['column_values'][0]['text']
+      odv_string = item['column_values'][1]['value']
+      fatturato = item['column_values'][2]['text']
+      if fatturato:
+        fatturato = float(fatturato)
+
+      else:
+        fatturato = 0
+
+
+      try:
+        odv_data = json.loads(odv_string)
+        odv_linked_pulse_ids = [item['linkedPulseId'] for item in odv_data['linkedPulseIds']]
+        odv_linked_pulse_ids = odv_linked_pulse_ids[0]
+      except:
+        odv_linked_pulse_ids = ""
+
+
+
+
+      data_list.append({'id_fattura': id_fattura, 'fatturato': fatturato,  "odv_linked_pulse_id": odv_linked_pulse_ids, "data_chiusura":date})
+
+    df_fattura = pd.DataFrame(data_list)
+    # Convert 'data_chiusura' to datetime type
+    df_fattura['data_chiusura'] = pd.to_datetime(df_fattura['data_chiusura'])
+
+    # Group by 'odv_linked_pulse_id', sum 'fatturato', and keep the last 'data_chiusura'
+    df_fattura = df_fattura.groupby('odv_linked_pulse_id').agg({'fatturato': 'sum', 'data_chiusura': 'max'}).reset_index()
+
+    # Print the result DataFrame
+
+    return df_fattura
+
+
+def first_merge():
+    df_odv = imponibile()
+    df_fattura = fatturato_data_chiusura()
+
+
+    # Convert 'id_odv' and 'odv_linked_pulse_id' to string before merging if they are not already
+    df_odv['id_odv'] = df_odv['id_odv'].astype(str)
+    df_fattura['odv_linked_pulse_id'] = df_fattura['odv_linked_pulse_id'].astype(str)
+
+    # Merge dataframes based on the specified condition
+    merged_df = pd.merge(df_odv, df_fattura, left_on='id_odv', right_on='odv_linked_pulse_id', how='left')
+
+    # Create 'da_fatturare' column
+    merged_df['da_fatturare'] = merged_df['imponibile'] - merged_df['fatturato']
+
+    # Select specific columns
+    result_df = merged_df[['id_odv', 'imponibile', 'pj_linked_pulse_id', 'fatturato', 'data_chiusura', 'da_fatturare']]
+    result_df
+
+    return result_df
+
+
+def final_merge():
+
+    df_rapportino = n_gu_mese()
+    df_progetto = contratto_e_n_progetto()
+    result_df = first_merge()
+
+    # Convert 'pj_linked_pulse_id' and 'id_progetto' to the same data type (e.g., str) before merging
+    df_rapportino['pj_linked_pulse_id'] = df_rapportino['pj_linked_pulse_id'].astype(str)
+    df_progetto['id_progetto'] = df_progetto['id_progetto'].astype(str)
+
+    # Merge dataframes based on the specified condition
+    merged_df = pd.merge(df_rapportino, df_progetto, left_on='pj_linked_pulse_id', right_on='id_progetto', how='left')
+    # Merge dataframes based on the specified condition
+    merged_df = pd.merge(df_rapportino, df_progetto, left_on='pj_linked_pulse_id', right_on='id_progetto', how='inner')
+
+
+    merged_df = merged_df[['id_progetto', 'ore_rendicontate', 'file', 'numero progetto', 'odv_linked_pulse_ids']]
+
+    # Convert columns to the same data type
+    merged_df['id_progetto'] = merged_df['id_progetto'].astype(str)
+    merged_df['odv_linked_pulse_ids'] = merged_df['odv_linked_pulse_ids'].astype(str)
+
+    # Merge dataframes based on the specified conditions
+    merged_result = pd.merge(
+      merged_df,
+      result_df,
+      left_on=['id_progetto', 'odv_linked_pulse_ids'],
+      right_on=['pj_linked_pulse_id', 'id_odv'],
+      how='inner'
+    )
+
+
+    return merged_result
 
