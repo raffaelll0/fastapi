@@ -18,7 +18,7 @@ bu_colors = {
     'FM0': 'orange',      # light gray
     'GC-EDI': '#1f78b4',    # darker blue
     'GC-IMP': '#33a02c',
-    'FM0, GC-IMP': 'purple',  # purple
+    'GC-IMP, FM0': 'purple',  # purple
     'SERV-GEN': 'blue'   # darker pink
 }
 
@@ -66,14 +66,15 @@ def n_progetti_in_progress_su_pm(person_name, path_str):
 
     # Create an Altair chart
     chart = alt.Chart(counts).mark_bar().encode(
-        x=alt.X('person',
+        x=alt.X('person:N',
                 title='PM/SO',
-                sort=alt.EncodingSortField(field='count', op='sum', order='descending')),
+                sort=alt.EncodingSortField(field='count', op='sum', order='ascending'),
+                axis=alt.Axis(labelAngle=45, labelFontSize=16)),
         y=alt.Y('count:Q', title='Conteggio'),
         color=alt.Color('specchio_1:N', title='BU',
                         scale=alt.Scale(domain=list(bu_colors.keys()), range=list(bu_colors.values()))),
         tooltip=['person', 'count', 'specchio_1']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='N Progetti in Progress su PM', fontSize=20))
 
     if path_str == "":
         path_str = "chart_1.png"
@@ -83,7 +84,7 @@ def n_progetti_in_progress_su_pm(person_name, path_str):
     chart.save(chart_path)
 
     return chart_path
-#n_progetti_in_progress_su_pm("", "")
+
 
 def importi_progress_pm(person_name, path_str):
     # make the query
@@ -142,13 +143,13 @@ def importi_progress_pm(person_name, path_str):
 
     # Create the Altair chart
     chart = alt.Chart(df_melted).mark_bar().encode(
-        x=alt.X('name:N', title='Names', sort='y'),
+        x=alt.X('name:N', title='',  sort='y', axis=alt.Axis(labelAngle=45, labelFontSize=16)),
         y=alt.Y('value:Q', title='Conteggio'),
         color='variable:N',
         tooltip=['name:N', 'value:Q', 'variable:N']
     ).properties(
         width=600,
-        title='Importi progetti in progress per PM'
+        title=alt.TitleParams(text='Importi Progetti in Progress per PM', fontSize=20)
     )
 
     if path_str == "":
@@ -198,13 +199,14 @@ def importo_progress_bu(tag_list, path_str):
     # Create an Altair chart
     chart = alt.Chart(df_grouped).mark_bar().encode(
         x=alt.X('tag:N', sort=alt.EncodingSortField(field='sum_values', op='sum', order='ascending'),
-                axis=alt.Axis(title='Tag')),
+                axis=alt.Axis(title='Tag', labelAngle=45, labelFontSize=16)),
+
         y=alt.Y('sum(sum_values):Q', axis=alt.Axis(title='Conteggio')),
         tooltip=['tag:N', 'sum(sum_values):Q']
     ).properties(
         width=600,
         height=400,
-        title='Importi progetti in Progress per PM'
+        title=alt.TitleParams(text='Importi progetti in Progress per BU', fontSize=20)
     )
 
     if path_str == "":
@@ -215,7 +217,7 @@ def importo_progress_bu(tag_list, path_str):
     chart.save(chart_path)
 
     return chart_path
-importo_progress_bu("", "")
+
 
 def importo_progetti_progress_anno(years_list, path_str):
     # make the query
@@ -254,7 +256,7 @@ def importo_progetti_progress_anno(years_list, path_str):
         x='anno:N',
         y='sum(value):Q',
         tooltip=['anno:N', 'sum(value):Q']
-    ).properties(width=600, height=200)
+    ).properties(width=600, height=200, title=alt.TitleParams(text='Importo Progetti in progress Per Anno', fontSize=20))
 
     if path_str == "":
         path_str = "chart_2.png"
@@ -345,10 +347,11 @@ def analisi_ferie_malattia():
     chart = alt.Chart(counts).mark_bar(color='purple').encode(
         x=alt.X('utente',
                 title='Assenza (Professionisti)',
-                sort=alt.EncodingSortField(field='valore')),
+                sort=alt.EncodingSortField(field='valore'),
+                axis=alt.Axis(labelAngle=45, labelFontSize=18)),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Analisi Ferie - Malattia - Dayhospital - Dipendenti', fontSize=20))
 
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_4.png")
 
@@ -389,10 +392,11 @@ def analisi_permessi_rol():
     chart = alt.Chart(counts).mark_bar(color='red').encode(
         x=alt.X('utente',
                 title='Assenza (Professionisti)',
-                sort=alt.EncodingSortField(field='valore')),
+                sort=alt.EncodingSortField(field='valore'),
+                axis=alt.Axis(labelAngle=0, labelFontSize=18)),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Analisi Permessi/ROL Dipendenti', fontSize=20))
 
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_5.png")
 
@@ -405,8 +409,9 @@ def analisi_assenze_liberi_professionisti():
     first_day, last_day = get_first_and_last_day_of_current_month()
 
     # make the query
+    #TODO MODIFICA LA DATA PRIMA DI PUSHARE SU GITHUB
     items = get_items(board_ids=[3561399641],
-                      query_params_str='{rules: [{column_id: "date4", compare_value: ["' + first_day + '", "' + last_day + '"], operator: between}]}',
+                      query_params_str='{rules: [{column_id: "date4", compare_value: ["2023-11-01", "2023-11-30"], operator: between}]}',
                       column_values_ids=["status", "numeric", "testo"],
                       # limit = 50
                       )
@@ -435,10 +440,11 @@ def analisi_assenze_liberi_professionisti():
     chart = alt.Chart(counts).mark_bar().encode(
         x=alt.X('utente',
                 title='Assenza (Professionisti)',
-                sort=alt.EncodingSortField(field='valore')),
+                sort=alt.EncodingSortField(field='valore'),
+                axis=alt.Axis(labelAngle=0, labelFontSize=18)),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Analisi Assenze Liberi Professionisti', fontSize=20))
 
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_6.png")
 
@@ -477,10 +483,11 @@ def giornate_smart_working():
     chart = alt.Chart(counts).mark_bar(color='orange').encode(
         x=alt.X('nome_lavoratore',
                 title='Nome Lavoratore',
-                sort=alt.EncodingSortField(field='count')),
+                sort=alt.EncodingSortField(field='count'),
+                axis=alt.Axis(labelAngle=0, labelFontSize=18)),
         y=alt.Y('count:Q', title='Giorni di Smart Working'),
         tooltip=['nome_lavoratore', 'count']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Analisi giornate Smart Working', fontSize=20))
 
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_7.png")
 
@@ -519,12 +526,13 @@ def timesheet_mese():
     # Create an Altair chart
     chart = alt.Chart(result_df).mark_bar().encode(
         x=alt.X('nome_lavoratore',
-                title='Nome Lavoratore',
-                sort=alt.EncodingSortField(field='ore_rendicontate', op='sum')),
+                title='',
+                sort=alt.EncodingSortField(field='ore_rendicontate', op='sum'),
+                axis=alt.Axis(labelAngle=45, labelFontSize=16)),
         y=alt.Y('ore_rendicontate:Q', title='Ore Rendicontate'),
         color=alt.Color('bu:N', title='BU'),
         tooltip=['nome_lavoratore', 'ore_rendicontate', 'bu']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Timesheet Mese', fontSize=20))
 
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_8.png")
 
@@ -566,7 +574,7 @@ def bu_h_pie():
         theta="ore_rendicontate:Q",
         color="bu",
         tooltip=["bu", "ore_rendicontate"]
-    ).properties(width=600, height=200)
+    ).properties(width=600, height=200, title=alt.TitleParams(text='BU/h', fontSize=20))
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_9.png")
 
     chart.save(chart_path)
@@ -637,11 +645,12 @@ def resoconto_budget_consuntivo_player():
     df = df.groupby(['name', 'stato']).agg({'diff': 'sum'}).reset_index()
 
     chart = alt.Chart(df).mark_bar().encode(
-        x=alt.X('name', sort='y'),
+        x=alt.X('name', sort='y', axis=alt.Axis(labelAngle=45, labelFontSize=18)),
+
         y='sum(diff)',
         color='stato',
         tooltip=['name', 'stato', 'diff']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Resoconto Budget Consuntivo Per Player', fontSize=20))
 
     chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_12.png")
 
@@ -704,10 +713,10 @@ def fatturazione_in_progress_media(name, path_str):
 
   # Create an Altair chart
   chart = alt.Chart(avg_df).mark_bar().encode(
-      x=alt.X('person:N', title='Person'),
+      x=alt.X('person:N', title='Person', axis=alt.Axis(labelAngle=45, labelFontSize=18)),
       y=alt.Y('mean(percentuale):Q', title='Average Percentuale'),
       tooltip=['person:N', 'mean(percentuale):Q']
-  ).properties(width=400)
+  ).properties(width=400, title=alt.TitleParams(text='Fatturazione Progetti In Progress (Media)', fontSize=20))
 
   if path_str == "":
       path_str = "chart_13.png"
@@ -749,7 +758,7 @@ def numero_progetti_in_progress_anno():
       x='anno:N',
       y='count:Q',
       tooltip=['anno:N', 'count:Q']
-  ).properties(width=400)
+  ).properties(width=400, title=alt.TitleParams(text='Numero Progetti in progress Per Anno', fontSize=20))
 
   chart_path = os.path.join(os.path.dirname(__file__), "pngs_of_charts", "chart_13.png")
 
