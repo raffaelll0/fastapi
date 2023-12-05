@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 import calendar
 
+from babel.dates import format_date, format_datetime, format_time
 
 
 
@@ -12,6 +13,22 @@ headers = {
     'Authorization': apiKey,
     'API-Version': '2023-10'
 }
+
+
+def anno_corrente():
+    current_year = datetime.now().year
+
+    return current_year
+
+
+def mese_corrente():
+
+    # Set the locale to Italian
+    locale = 'it_IT'
+
+    # Get the current month in text
+    current_month_text = format_date(datetime.now(), format='MMMM', locale=locale)
+    return current_month_text
 
 
 def today():
