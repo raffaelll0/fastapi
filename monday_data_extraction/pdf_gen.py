@@ -9,7 +9,7 @@ import pandas as pd
 import monday_data_extraction.data_to_score
 from monday_data_extraction import data_to_chart
 from monday_data_extraction import data_to_score
-from monday import today
+from monday import today, mese_corrente, anno_corrente
 def header(pdf):
     # HEADER
     # Get the dimensions of the img
@@ -194,7 +194,7 @@ def create_pdf(file_path):
     # HEADER END
 
     # TITLE START
-    title(pdf, text="REPORT KPI MESE 2023", y_offset=680)
+    title(pdf, text=f"REPORT KPI {mese_corrente()}  {anno_corrente()}", y_offset=680)
     # TITLE END
 
     # DESCRIPTIONS START
@@ -203,7 +203,7 @@ def create_pdf(file_path):
     # DESCRIPTIONS END
 
     # TITLE_2 START
-    title(pdf, text="PERIODO DI RIFERIMENTO: MESE 2023", y_offset=600)
+    title(pdf, text=f"PERIODO DI RIFERIMENTO: {mese_corrente()}  {anno_corrente()}", y_offset=600)
     # TITLE_2 END
 
     # BOX_1 START
@@ -224,7 +224,7 @@ def create_pdf(file_path):
     # BOX_1 END
 
     # TITLE_3 START
-    title(pdf, text="PERIODO DI RIFERIMENTO: ANNO 2023", y_offset=450)
+    title(pdf, text=f"PERIODO DI RIFERIMENTO: ANNO {anno_corrente()}", y_offset=450)
     # TITLE_3 END
 
     # BOX_2 START
@@ -248,7 +248,7 @@ def create_pdf(file_path):
     fatturato_previsto = data_to_score.fatturato_prev_2023()
 
     num_boxes = 3
-    box_titles = ["FATTURATO AD OGGI", "FATTURATO DA EMETTERE", "FATTURATO PREVISTO 2023"]
+    box_titles = ["FATTURATO AD OGGI", "FATTURATO DA EMETTERE", f"FATTURATO PREVISTO {anno_corrente()}"]
     box_values = [str(fatturato_ad_oggi), str(fatturato_da_emettere), str(fatturato_previsto)]
     box_width = 120
     box_height = 80
@@ -373,7 +373,7 @@ def create_pdf(file_path):
     # BOX_1 START
 
     num_boxes = 2
-    box_titles = ["OBIETTIVI 2023", "COMMENTI"]
+    box_titles = [f"OBIETTIVI {anno_corrente()}", "COMMENTI"]
     box_values = ["TESTO", "TESTO"]
     box_width = 220
     box_height = 80
