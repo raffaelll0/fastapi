@@ -14,6 +14,11 @@ headers = {
 }
 
 
+def today():
+    # Get today's date
+    today_date = datetime.today().date()
+    return today_date
+
 
 def get_first_and_last_day_of_current_month():
     # Get the current date
@@ -50,73 +55,89 @@ def first_and_last_day_of_year():
     return first_day_str, last_day_str
 
 
-def get_items(board_ids: list, column_values_ids: list, group_ids: list = None, limit: int = 500,
-              query_params_str: str = None, cursor: str = None):
+
+
+def get_items(board_ids:list , column_values_ids:list, group_ids:list = None, limit:int = 500, query_params_str:str = None, cursor:str = None):
+
     all_items = []
-    global group_title
+
+
+    #global group_title
 
     if group_ids is None:
-        my_group_ids_str = ""
-        group_ids_str = ""
-        group_ids_closing = ""
+      my_group_ids_str = ""
+      group_ids_str = ""
+      group_ids_closing =""
 
     else:
-        my_group_ids_str = "$my_group_ids: [String!]"
-        group_ids_str = "{groups(ids:$my_group_ids)"
-        group_ids_closing = "title }"
+      my_group_ids_str = "$my_group_ids: [String!]"
+      group_ids_str = "{groups(ids:$my_group_ids)"
+      group_ids_closing ="title }"
 
-    if query_params_str is None:
-        query_params_str = ""
+    if  query_params_str is None:
+      query_params_str =""
     else:
-        query_params_str = f", query_params: {query_params_str}"
+      query_params_str = f", query_params: {query_params_str}"
+
+
 
     while True:
-        if cursor is None:
-            cursor_str = ""
-        else:
-            cursor_str = f', cursor: "{cursor}"'
-            # print(cursor_str)
-            query_params_str = ""
+      if cursor is None:
+        cursor_str = ""
+      else:
+        cursor_str = f', cursor: "{cursor}"'
+        #print(cursor_str)
+        query_params_str = ""
 
-        # Define the initial query to fetch the first set of data
-        query = 'query ($my_board_id: [ID!]!, $my_colummn_values_ids: [String!], $my_limit: Int!' + my_group_ids_str + ') { boards(ids:$my_board_id)' + group_ids_str + ' { items_page(limit:$my_limit' + query_params_str + cursor_str + ') { cursor items { id name column_values(ids:$my_colummn_values_ids){id text value ... on MirrorValue { display_value }}}} ' + group_ids_closing + ' }}'
-        # print(query)
-        vars = {
-            'my_limit': limit,
-            'my_board_id': board_ids,
-            'my_query_params': query_params_str,
-            'my_colummn_values_ids': column_values_ids,
-            'my_group_ids': group_ids
-        }
+      # Define the initial query to fetch the first set of data
+      query = 'query ($my_board_id: [ID!]!, $my_colummn_values_ids: [String!], $my_limit: Int!'+my_group_ids_str+') { boards(ids:$my_board_id)'+ group_ids_str +' { items_page(limit:$my_limit'+query_params_str + cursor_str +') { cursor items { id name column_values(ids:$my_colummn_values_ids){id text value ... on MirrorValue { display_value }}}} ' + group_ids_closing + ' }}'
+      #print(query)
+      vars = {
+          'my_limit': limit,
+          'my_board_id':board_ids,
+          'my_query_params': query_params_str,
+          'my_colummn_values_ids':column_values_ids,
+          'my_group_ids': group_ids
+          }
 
-        data = {'query': query, 'variables': vars}
+      data = {'query': query, 'variables': vars}
 
-        # Make a request to the GraphQL endpoint
-        r = requests.post(url=apiUrl, json=data, headers=headers)
-        response_data = r.json()
-        #print(response_data)
+      # Make a request to the GraphQL endpoint
+      r = requests.post(url=apiUrl, json=data, headers=headers)
+      response_data = r.json()
+      #print(response_data)
 
-        if group_ids is None:
-            items = response_data['data']['boards'][0]['items_page']['items']
-            cursor = response_data['data']['boards'][0]['items_page']['cursor']
-        else:
-            cursor = response_data['data']['boards'][0]['groups'][0]['items_page']['cursor']
-            if response_data['data']['boards'][0]['groups'][0]['title']:
-                group_title = response_data['data']['boards'][0]['groups'][0]['title']
-            else:
-                group_title = None
-
-            for n, id in enumerate(group_ids):
-                items = response_data['data']['boards'][0]['groups'][n]['items_page']['items']
-                all_items.extend(items)
-
+      if group_ids is None:
+        items = response_data['data']['boards'][0]['items_page']['items']
+        cursor = response_data['data']['boards'][0]['items_page']['cursor']
+        #print(len(items))
         # Append items to the accumulated list
         all_items.extend(items)
 
-        if limit != 500:
-            break
+      else:
+        cursor = response_data['data']['boards'][0]['groups'][0]['items_page']['cursor']
 
-        if cursor is None:
-            break
+        #if response_data['data']['boards'][0]['groups'][0]['title']:
+         # group_title = response_data['data']['boards'][0]['groups'][0]['title']
+        #else:
+          #group_title = None
 
-    return (all_items)
+
+        for n, id in enumerate(group_ids):
+          items = response_data['data']['boards'][0]['groups'][n]['items_page']['items']
+          #all_items.extend(items)
+          #print(len(items))
+         # Append items to the accumulated list
+          all_items.extend(items)
+
+
+      # Append items to the accumulated list
+      #all_items.extend(items)
+
+      if limit != 500:
+        break
+
+      if cursor is None:
+          break
+
+    return(all_items)
