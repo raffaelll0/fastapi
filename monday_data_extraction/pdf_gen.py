@@ -45,6 +45,13 @@ def footer(pdf):
     # FOOTER
 
 
+def num_pag(pdf, n):
+    # Add text to the bottom right corner
+    page_number_text = f"     {n}"
+    page_width, page_height = letter
+    pdf.setFont("Helvetica", 12)  # Set font to bold and size 16
+    pdf.drawString(page_width - pdf.stringWidth(page_number_text, 'Helvetica', 12) - 20, 20, page_number_text)
+
 def title(pdf, text, y_offset):
     # TITLE
     # Add bold title in the center
@@ -61,12 +68,17 @@ def title(pdf, text, y_offset):
 
 
 def descriptions(pdf, text_1, text2, x_offset, y_offset):
+
     # DESCRIPTIONS
     # Add description lines
     pdf.setFont("Helvetica", 12)  # Set font to regular and size 12
     pdf.drawString(x_offset, y_offset, text_1)
     pdf.drawString(x_offset, y_offset - 20, text2)
     # DESCRIPTIONS
+
+
+
+
 
 
 
@@ -86,9 +98,9 @@ def draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, cu
         title_x_position = current_x_offset + box_width / 2
         title_y_position = current_y_offset + box_height - 15
 
-        pdf.setFont("Times-Bold", 12)  # Set initial font size
-        font_size = 12  # Initial font size
-        while pdf.stringWidth(title_text, "Times-Bold", font_size) > box_width - 10 and font_size > 5:
+        pdf.setFont("Times-Bold", 8)  # Set initial font size
+        font_size = 8  # Initial font size
+        while pdf.stringWidth(title_text, "Times-Bold", font_size) > box_width - 3 and font_size > 5:
             font_size -= 1
         pdf.setFont("Times-Bold", font_size)
         pdf.drawCentredString(title_x_position, title_y_position, title_text)
@@ -103,8 +115,8 @@ def draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, cu
         value_x_position = current_x_offset + box_width / 2
         value_y_position = current_y_offset + box_height / 3
 
-        pdf.setFont("Helvetica-Bold", 24)
-        font_size = 24  # Reset font size for number
+        pdf.setFont("Helvetica-Bold", 22)
+        font_size = 22  # Reset font size for number
         while pdf.stringWidth(value_text, "Helvetica-Bold", font_size) > box_width - 10 and font_size > 5:
             font_size -= 1
         pdf.setFont("Helvetica-Bold", font_size)
@@ -133,45 +145,52 @@ def box_titles(pdf, x_offset, y_offset, text_1):
         y_offset -= 10  # Adjust the line spacing as needed
 
 
-# def box_descriptions(pdf, x_offset, y_offset, num_sets):
-#     for _ in range(num_sets):
-#         n_boxes = 7  # Adjust the number of boxes as needed
-#         box_details = [
-#             ("Box 1"),
-#             ("Box 2"),
-#             ("Box 3"),
-#             ("Box 4"),
-#             ("Box 5"),
-#             ("Box 6"),
-#             ("Box 7")
-#         ]
-#         create_boxes(pdf, n_boxes, box_details, x_offset=x_offset, y_offset=y_offset, desc_height=15, custom_height=35)
-#         y_offset -= 35
-
 def box_descriptions(pdf, x_offset, y_offset, num_sets, box_details_list):
     for i in range(num_sets):
-        n_boxes = 7  # Adjust the number of boxes as needed
+        n_boxes = 8  # Adjust the number of boxes as needed
         box_details = box_details_list[i] if i < len(box_details_list) else [""] * n_boxes
-        create_boxes(pdf, n_boxes, box_details, x_offset=x_offset, y_offset=y_offset, desc_height=15, custom_height=35)
-        y_offset -= 35
+        create_boxes(pdf, n_boxes, box_details, x_offset=x_offset, y_offset=y_offset, desc_height=10, custom_height=25)
+        y_offset -= 25
+
+
 
 def create_boxes(pdf, n_boxes, box_details, x_offset, y_offset, desc_height, custom_height=None):
-    box_width = 80  # Adjust the width of the box as needed
+    box_width = 85  # Default width for most columns
+    indice_column_width = 30  # Adjust the width for the "Indice" column
     space_between_boxes = 0  # Adjust the space between boxes as needed
 
+    # Define custom widths for "N Progetto", "Contratto SI/NO", and "GU lavorate nel mese" boxes
+    n_progetto_width = 50
+    contratto_width = 60
+    gu_lavorate_width = 75
+
     # Calculate the total horizontal space needed for all boxes
-    total_width = n_boxes * (box_width + space_between_boxes)
+    total_width = (
+        n_progetto_width + contratto_width + gu_lavorate_width +
+        (n_boxes - 3) * (box_width + space_between_boxes)
+    )
 
     # Calculate the starting x position for the first box
     x_position = (pdf._pagesize[0] - total_width) / 2 + x_offset
 
     for i in range(n_boxes):
+        # Check if the current box is for the "Indice" column
+        if i == 0:
+            current_box_width = indice_column_width
+        elif i == 1:  # Adjust the condition for "N Progetto" column
+            current_box_width = n_progetto_width
+        elif i == 2:  # Adjust the condition for "Contratto SI/NO" column
+            current_box_width = contratto_width
+        elif i == 7:  # Adjust the condition for "GU lavorate nel mese" column
+            current_box_width = gu_lavorate_width
+        else:
+            current_box_width = box_width
 
         # Draw the box
         pdf.setStrokeColor(black)
         pdf.setFillColor(white)
-        box_height = custom_height if custom_height is not None else 60  # Adjust the height of the second line
-        pdf.rect(x_position, y_offset, box_width, box_height, fill=True)
+        box_height = custom_height if custom_height is not None else 60
+        pdf.rect(x_position, y_offset, current_box_width, box_height, fill=True)
 
         # Set fill color to black for text
         pdf.setFillColor(black)
@@ -180,7 +199,13 @@ def create_boxes(pdf, n_boxes, box_details, x_offset, y_offset, desc_height, cus
         box_titles(pdf, x_position, y_offset + desc_height, box_details[i])
 
         # Update the x position for the next box
-        x_position += box_width + space_between_boxes
+        x_position += current_box_width + space_between_boxes
+
+
+
+list_pm = ["Chiara Bernacchi", "Angelo Ducoli", "Christian Trocino", "Edgardo Maffezzoli", "Giovanni Erbicella",
+           "Luca Capozzi", "Nicolo Balsamo",
+           "Raffaele Tardi"]
 
 
 def create_pdf(file_path):
@@ -189,6 +214,78 @@ def create_pdf(file_path):
     # Create a PDF document
     pdf = canvas.Canvas(file_path, pagesize=letter)
 
+########################################################################################################################
+    # INDICE START
+
+    # HEADER START
+    header(pdf)
+    # HEADER END
+
+    # TITLE START
+    title(pdf, text=f"REPORT KPI {mese_corrente()}  {anno_corrente()}", y_offset=680)
+    # TITLE END
+
+    # TITLE START
+    title(pdf, text="INDICE", y_offset=650)
+    # TITLE END
+    n_indice = 6
+    empty_string = "                                                                        "
+
+    # DESCRIPTIONS START
+    descriptions(pdf, text_1="RESOCONTO PREVENTIVI                          ______________________Pag 1",
+                 text2="ANALISI OPERATIVA PROGETTI                 ______________________Pag 2",
+                 x_offset=50,
+                 y_offset=600)
+    # DESCRIPTIONS END
+    # DESCRIPTIONS START
+
+    descriptions(pdf, text_1="CONTROLLO DI GESTIONE                         ______________________Pag 3",
+                    text2=f"", x_offset=50,
+                    y_offset=560)
+    # DESCRIPTIONS END
+    # DESCRIPTIONS START
+    y = 540
+    for pm in list_pm:
+        descriptions(pdf, text_1=f"REPORT PM KPI: {pm}",
+                     text2="", x_offset=50,
+                     y_offset=y)
+
+        descriptions(pdf, text_1=f"{empty_string}______________________Pag{n_indice}",
+                     text2="",
+                     x_offset=50,
+                     y_offset=y)
+
+        y -= 20
+        n_indice += 1
+
+
+
+
+    # DESCRIPTIONS END
+
+    # DESCRIPTIONS START
+    for pm in list_pm:
+        descriptions(pdf, text_1=f"REPORT PM Dettaglio: {pm}",
+                     text2="", x_offset=50,
+                     y_offset=y)
+
+        descriptions(pdf, text_1=f"{empty_string}______________________Pag{n_indice}",
+                     text2="",
+                     x_offset=50,
+                     y_offset=y)
+        y -= 20
+        n_indice += 1
+    # DESCRIPTIONS END
+
+    # FOOTER START
+    footer(pdf)
+    # FOOTER END
+    num_pag(pdf, "0")
+
+    # INDICE END
+########################################################################################################################
+    # FIRST PAGE START
+    pdf.showPage()
     # HEADER START
     header(pdf)
     # HEADER END
@@ -214,9 +311,9 @@ def create_pdf(file_path):
     tot_prev_evasi_tot = data_to_score.importo_tot_prev_evasi()
 
     num_boxes = 4
-    box_titles = ["N. Tot. Prev. Evasi", "N. Tot. Prev. Accettati", "N. Tot. Prev. Acc. consuntivo ",
-                  "Importo. Tot. Prev. Evasi"]
-    box_values = [str(tot_prev_evasi_mese), str(tot_prev_acc_mese), str(tot_prev_acc_cons), str(tot_prev_evasi_tot)]
+    box_titles = ["PREVENTIVI EVASI", "PREVENTIVI ACCETTATI", "PREV. ACCETTATI CONSUNTIVO",
+                  "IMPORTO PREV EVASI"]
+    box_values = [str(tot_prev_evasi_mese), str(tot_prev_acc_mese), str(tot_prev_acc_cons), str(tot_prev_evasi_tot)+' €']
     box_width = 120
     box_height = 80
 
@@ -233,8 +330,8 @@ def create_pdf(file_path):
     tot_prev_acc_importo = data_to_score.importo_tot_prev_accettati()
 
     num_boxes = 2
-    box_titles = ["N. Tot. Prev. Accettati", "Importo. Tot. Prev. Accettati"]
-    box_values = [str(tot_prev_acc), str(tot_prev_acc_importo)]
+    box_titles = ["PREVENTIVI ACCETTATI", "IMPORTO PREV. ACCETTATI"]
+    box_values = [str(tot_prev_acc), str(tot_prev_acc_importo)+' €']
     box_width = 120
     box_height = 80
 
@@ -249,7 +346,7 @@ def create_pdf(file_path):
 
     num_boxes = 3
     box_titles = ["FATTURATO AD OGGI", "FATTURATO DA EMETTERE", f"FATTURATO PREVISTO {anno_corrente()}"]
-    box_values = [str(fatturato_ad_oggi), str(fatturato_da_emettere), str(fatturato_previsto)]
+    box_values = [str(fatturato_ad_oggi)+' €', str(fatturato_da_emettere)+' €', str(fatturato_previsto)+' €']
     box_width = 120
     box_height = 80
 
@@ -259,7 +356,8 @@ def create_pdf(file_path):
     # FOOTER START
     footer(pdf)
     # FOOTER END
-########################################################################################################################
+    num_pag(pdf, "1")
+#####################################################################################################################
     # SECOND PAGE START
     pdf.showPage()
     # HEADER START
@@ -267,7 +365,7 @@ def create_pdf(file_path):
     # HEADER END
 
     # TITLE_3 START
-    title(pdf, text="ANALISI OPERATIVA PROGETTI", y_offset=730)
+    title(pdf, text="ANALISI OPERATIVA PROGETTI", y_offset=710)
     # TITLE_3 END
 
     # DESCRIPTIONS + IMG START
@@ -275,24 +373,24 @@ def create_pdf(file_path):
     # Draw Altair chart image under the description
     chart_path = data_to_chart.n_progetti_in_progress_su_pm("", "")
     #chart_path = r'pngs_of_charts/chart_1.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=730, logo_width=470, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=55, y_offset=720, logo_width=530, logo_height=200)
 
     chart_path = data_to_chart.importi_progress_pm("", "")
     #chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_10.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=520, logo_width=470, logo_height=250)
+    draw_chart_under_description(pdf, chart_path, x_offset=50, y_offset=520, logo_width=500, logo_height=200)
 
     chart_path = data_to_chart.importo_progress_bu("", "")
     #chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_11.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=70, y_offset=270, logo_width=420, logo_height=230)
+    draw_chart_under_description(pdf, chart_path, x_offset=30, y_offset=320, logo_width=485, logo_height=180)
 
     # DESCRIPTIONS + IMG END
 
     # FOOTER START
-    #footer(pdf)
+    footer(pdf)
     # FOOTER END
-
+    num_pag(pdf, "2")
     # SECOND PAGE END
-########################################################################################################################
+#######################################################################################################################
     # THIRD PAGE START
     pdf.showPage()
     # HEADER START
@@ -300,7 +398,7 @@ def create_pdf(file_path):
     # HEADER END
 
     # TITLE_4 START
-    title(pdf, text="CONTROLLO DI GESTIONE", y_offset=720)
+    title(pdf, text="CONTROLLO DI GESTIONE", y_offset=700)
     # TITLE_4 END
 
     # DESCRIPTIONS + IMG START
@@ -308,15 +406,15 @@ def create_pdf(file_path):
     # Draw Altair chart image under the description
     chart_path = data_to_chart.analisi_ferie_malattia()
     # chart_path = r'pngs_of_charts/chart_4.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=730, logo_width=450, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=700, logo_width=450, logo_height=200)
 
     chart_path = data_to_chart.analisi_permessi_rol()
     # chart_path = r'pngs_of_charts\chart_5.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=520, logo_width=450, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=485, logo_width=450, logo_height=170)
 
     chart_path = data_to_chart.giornate_smart_working()
     # chart_path = r'pngs_of_charts\chart_6.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=320, logo_width=450, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=300, logo_width=450, logo_height=170)
 
     # DESCRIPTIONS + IMG END
 
@@ -324,7 +422,7 @@ def create_pdf(file_path):
     footer(pdf)
     # FOOTER END
     # THIRD PAGE END
-
+    num_pag(pdf, "3")
 ########################################################################################################################
 
     # FOURTH PAGE START
@@ -334,7 +432,7 @@ def create_pdf(file_path):
     # HEADER END
 
     # TITLE_4 START
-    title(pdf, text="CONTROLLO DI GESTIONE", y_offset=720)
+    title(pdf, text="CONTROLLO DI GESTIONE", y_offset=700)
     # TITLE_4 END
 
     # DESCRIPTIONS + IMG START
@@ -342,15 +440,15 @@ def create_pdf(file_path):
     # Draw Altair chart image under the description
     chart_path = data_to_chart.analisi_assenze_liberi_professionisti()
     # chart_path = r'pngs_of_charts/chart_7.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=720, logo_width=450, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=75, y_offset=710, logo_width=450, logo_height=180)
 
     chart_path = data_to_chart.timesheet_mese()
     # chart_path = r'pngs_of_charts\chart_8.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=80, y_offset=500, logo_width=470, logo_height=230)
+    draw_chart_under_description(pdf, chart_path, x_offset=80, y_offset=540, logo_width=450, logo_height=200)
 
     chart_path = data_to_chart.bu_h_pie()
     # chart_path = r'pngs_of_charts\chart_9.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=265, logo_width=450, logo_height=130)
+    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=330, logo_width=250, logo_height=200)
 
     # DESCRIPTIONS + IMG END
 
@@ -358,7 +456,8 @@ def create_pdf(file_path):
     footer(pdf)
     # FOOTER END
     # FOURTH PAGE END
-########################################################################################################################
+    num_pag(pdf, 4)
+#######################################################################################################################
     # FIFTH PAGE START
     pdf.showPage()
     # HEADER START
@@ -368,129 +467,146 @@ def create_pdf(file_path):
     # Draw Altair chart image under the description
     chart_path = data_to_chart.resoconto_budget_consuntivo_player()
     # chart_path = r'pngs_of_charts/chart_7.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=720, logo_width=470, logo_height=300)
+    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=720, logo_width=500, logo_height=300)
 
     # BOX_1 START
 
-    num_boxes = 2
-    box_titles = [f"OBIETTIVI {anno_corrente()}", "COMMENTI"]
-    box_values = ["TESTO", "TESTO"]
-    box_width = 220
-    box_height = 80
-
-    draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=250)
+    # num_boxes = 2
+    # box_titles = [f"OBIETTIVI {anno_corrente()}", "COMMENTI"]
+    # box_values = ["TESTO", "TESTO"]
+    # box_width = 220
+    # box_height = 80
+    #
+    # draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=250)
     # BOX_1 END
 
     # FOOTER START
     footer(pdf)
     # FOOTER END
     # FIFTH PAGE END
-########################################################################################################################
-    # SIXT PAGE START
-    pdf.showPage()
-    # HEADER START
-    header(pdf)
-    # HEADER END
+    num_pag(pdf, "5")
+#######################################################################################################################
 
-    # TITLE_4 START
-    title(pdf, text="REPORT PM KPI: Chiara Bernacchi", y_offset=680)
-    # TITLE_4 END
-
-    # DESCRIPTIONS + IMG START
-    # LEFT
-    #descriptions(pdf, text_1="Numero Progetti In Progress", text2="", x_offset=50, y_offset=660)
-    # Draw Altair chart image under the description
-    chart_path = data_to_chart.n_progetti_in_progress_su_pm('Chiara Bernacchi', 'chart_chiara.png')
-    # chart_path = r'pngs_of_charts/chart_chiara.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=50, y_offset=670, logo_width=225, logo_height=150)
-
-    #descriptions(pdf, text_1="Fatturazione Progetti In Progress (Media)", text2="", x_offset=50, y_offset=500)
-    chart_path = data_to_chart.fatturazione_in_progress_media('Chiara Bernacchi', 'fatturazione_in_progress_media_chiara.png')
-    # chart_path = r'pngs_of_charts\fatturazione_in_progress_media_chiara.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=40, y_offset=500, logo_width=225, logo_height=150)
-
-    #descriptions(pdf, text_1="Numero Progetti in progress Per Anno", text2="", x_offset=50, y_offset=310)
-    chart_path = data_to_chart.numero_progetti_in_progress_anno()
-    # chart_path = r'pngs_of_charts\chart_13.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=50, y_offset=310, logo_width=205, logo_height=150)
-    # LEFT
-
-
-    # RIGHT
-    # Draw Altair chart image under the description
-    chart_path = data_to_chart.importi_progress_pm("Chiara Bernacchi", "importi_progress_pm_chiara.png")
-    # chart_path = r'pngs_of_charts/importi_progress_pm_chiara.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=350, y_offset=670, logo_width=225, logo_height=150)
-
-    chart_path = data_to_chart.importo_progress_bu(["FM0","CONS-IMP", "CONS-IMM"], "importo_progress_bu.png")
-    # chart_path = r'pngs_of_charts\importo_progress_bu.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=350, y_offset=500, logo_width=225, logo_height=150)
-
-    chart_path = data_to_chart.importo_progetti_progress_anno(["2020", "2021", "2022", "2023"], "importo_progetti_progress_anno_filtered.png")
-    # chart_path = r'pngs_of_charts\importo_progetti_progress_anno_filtered.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=350, y_offset=310, logo_width=205, logo_height=150)
-    # RIGHT
-
-    # DESCRIPTIONS + IMG END
-
-
-
-    # FOOTER START
-    footer(pdf)
-    # FOOTER END
-    # SIXT PAGE END
-
-########################################################################################################################
-    # SEVENTH PAGE START
-
-    def chunks(lst, chunk_size):
-        """Yield successive n-sized chunks from lst."""
-        for i in range(0, len(lst), chunk_size):
-            yield lst[i:i + chunk_size]
-
-    # # Create boxes with descriptions
-    box_details = [
-        (" Numero GU\n lavorate nel\n mese corrente"),
-        (" Contratto\n SI/NO"),
-        (" N Progetto"),
-        (" Imponibile "),
-        (" Fatturato"),
-        (" Da Fatturare"),
-        (" Data Prevista\n Chiusura")
-    ]
-    n_boxes = len(box_details)
-
-    # # Add data from DataFrame to PDF
-    merged_result = monday_data_extraction.data_to_score.final_merge()
-
-    # Create multiple sets of boxes with descriptions
-
-    box_details_list = [
-        [str(row['ore_rendicontate']),
-         str(row['file']),
-         str(row['numero progetto']),
-         str(row['imponibile']),
-         str(round(row['fatturato'], 2)),
-         str(round(row['da_fatturare'], 2)),  # Round 'Da Fatturare' to 2 decimal places
-         str(row['data_chiusura'].strftime('%Y-%m-%d')if not pd.isnull(row['data_chiusura']) else '')]
-        # Format 'Data Chiusura' if not NaT)]  # Format 'Data Chiusura'
-        for _, row in merged_result.iterrows()
-    ]
-
-    row_counter = 0  # Counter to keep track of the rows processed
-
-    for box_details_set in chunks(box_details_list, 12):  # Process 12 rows at a time
-        pdf.showPage()  # Add a new page
+    num = 5
+    for pm in list_pm:
+        print(pm)
+        # SIXT PAGE START
+        pdf.showPage()
+        # HEADER START
         header(pdf)
-        title(pdf, text="REPORT PM  Dettaglio: Lelenia Cacioppo", y_offset=680)
-        create_boxes(pdf, n_boxes, box_details, x_offset=0, desc_height=40, y_offset=550)
-        box_descriptions(pdf, x_offset=0, y_offset=515, num_sets=len(box_details_set), box_details_list=box_details_set)
-        row_counter += len(box_details_set)
+        # HEADER END
 
-    # FOOTER START
-    footer(pdf)
-    # FOOTER END
-    # SEVENTH PAGE END
+
+        # TITLE_4 START
+        title(pdf, text=f"REPORT PM KPI: {pm}", y_offset=710)
+        # TITLE_4 END
+
+        # DESCRIPTIONS + IMG START
+        # LEFT
+        # descriptions(pdf, text_1="Numero Progetti In Progress", text2="", x_offset=50, y_offset=660)
+        # Draw Altair chart image under the description
+        chart_path = data_to_chart.n_progetti_in_progress_su_pm(pm, 'chart_chiara.png')
+        # chart_path = r'pngs_of_charts/chart_chiara.png'
+        draw_chart_under_description(pdf, chart_path, x_offset=20, y_offset=710, logo_width=280, logo_height=180)
+
+        # descriptions(pdf, text_1="Fatturazione Progetti In Progress (Media)", text2="", x_offset=50, y_offset=500)
+        chart_path = data_to_chart.fatturazione_in_progress_media(pm, 'fatturazione_in_progress_media_chiara.png')
+        # chart_path = r'pngs_of_charts\fatturazione_in_progress_media_chiara.png'
+        draw_chart_under_description(pdf, chart_path, x_offset=10, y_offset=525, logo_width=250, logo_height=180)
+
+        # descriptions(pdf, text_1="Numero Progetti in progress Per Anno", text2="", x_offset=50, y_offset=310)
+        chart_path = data_to_chart.numero_progetti_in_progress_anno(pm)
+        # chart_path = r'pngs_of_charts\importo_progetti_progress_anno_filtered.png'
+        draw_chart_under_description(pdf, chart_path, x_offset=15, y_offset=330, logo_width=250, logo_height=180)
+        # LEFT
+
+        # RIGHT
+
+        # Draw Altair chart image under the description
+
+        chart_path = data_to_chart.importi_progress_pm(pm, "importi_progress_pm_chiara.png")
+        # chart_path = r'pngs_of_charts/importi_progress_pm_chiara.png'
+        draw_chart_under_description(pdf, chart_path, x_offset=300, y_offset=710, logo_width=310, logo_height=170)
+
+        chart_path = data_to_chart.importo_progress_bu(pm, "importo_progress_bu.png")
+        # chart_path = r'pngs_of_charts\importo_progress_bu.png'
+        draw_chart_under_description(pdf, chart_path, x_offset=295, y_offset=530, logo_width=300, logo_height=190)
+
+        chart_path = data_to_chart.importo_progetti_progress_anno(pm, "importo_progetti_progress_anno_filtered.png")
+        # chart_path = r'pngs_of_charts\chart_13.png'
+        draw_chart_under_description(pdf, chart_path, x_offset=295, y_offset=335, logo_width=300, logo_height=190)
+
+        # RIGHT
+
+        num += 1
+        num_pag(pdf, num)
+        # DESCRIPTIONS + IMG END
+
+        # FOOTER START
+        footer(pdf)
+        # FOOTER END
+        print("done")
+        # SIXT PAGE END
+
+########################################################################################################################
+
+   # SEVENTH PAGE START
+
+    for pm in list_pm:
+        def chunks(lst, chunk_size):
+            """Yield successive n-sized chunks from lst."""
+            for i in range(0, len(lst), chunk_size):
+                yield lst[i:i + chunk_size]
+
+        # # Create boxes with descriptions
+        box_details = [
+            (" N "),
+            (" N\n Progetto"),
+            (" Contratto\n SI/NO"),
+            (" Imponibile "),
+            (" Fatturato"),
+            (" Da Fatturare"),
+            (" Data Prevista\n Chiusura"),
+            (" GU lavorate\n nel mese")
+        ]
+        n_boxes = len(box_details)
+
+        # # Add data from DataFrame to PDF
+        merged_result = monday_data_extraction.data_to_score.final_merge(pm)
+
+        # Create multiple sets of boxes with descriptions
+        empty = " "
+        box_details_list = [
+            [' ' +str(row['index']),
+             '   ' +str(row['numero progetto']),
+             '   ' +str(row['file']),
+             ' ' +str(row['imponibile']+' €'),
+             ' ' +str(row['fatturato']+' €'),
+             ' ' +str(row['da_fatturare']+' €'),  # Round 'Da Fatturare' to 2 decimal places
+             ' ' +str(row['data_chiusura'].strftime('%d-%m-%Y')if not pd.isnull(row['data_chiusura']) else ''),
+             '   ' + "{:.2f}".format(float(row['ore_rendicontate']))]
+            # Format 'Data Chiusura' if not NaT)]  # Format 'Data Chiusura'
+            for _, row in merged_result.iterrows()
+        ]
+
+        row_counter = 0  # Counter to keep track of the rows processed
+
+        for box_details_set in chunks(box_details_list, 20):  # Process 20 rows at a time
+            pdf.showPage()  # Add a new page
+            header(pdf)
+            title(pdf, text=f"REPORT PM  Dettaglio: {pm}", y_offset=680)
+            create_boxes(pdf, n_boxes, box_details, x_offset=20, desc_height=40, y_offset=600)
+            box_descriptions(pdf, x_offset=20, y_offset=595, num_sets=len(box_details_set), box_details_list=box_details_set)
+            row_counter += len(box_details_set)
+            footer(pdf)
+            num += 1
+            num_pag(pdf, num)
+
+        # FOOTER START
+        footer(pdf)
+        # FOOTER END
+        # SEVENTH PAGE END
+
 ########################################################################################################################
 
     # Save the PDF to the specified file path
