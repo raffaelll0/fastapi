@@ -150,7 +150,7 @@ def importo_tot_prev_evasi():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
-    total_sum = '{:,.0f}'.format(float(total_sum))
+    total_sum = '{:,.2f}'.format(float(total_sum)).replace(',', ' ').replace('.', ',').replace(' ', '.')
 
     return total_sum
 
@@ -189,7 +189,7 @@ def importo_tot_prev_accettati():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
-    total_sum = '{:,.2f}'.format(float(total_sum))
+    total_sum = '{:,.2f}'.format(float(total_sum)).replace(',', ' ').replace('.', ',').replace(' ', '.')
 
     return total_sum
 
@@ -224,7 +224,7 @@ def fatturato_prev_2023():
             print("Warning: Could not convert '{0}' to float. Skipping this value.".format(numeri_value))
 
     rounded_total_sum = round(total_sum, 2)
-    rounded_total_sum = '{:,.2f}'.format(float(total_sum))
+    rounded_total_sum = '{:,.2f}'.format(float(total_sum)).replace(',', ' ').replace('.', ',').replace(' ', '.')
 
 
 
@@ -264,7 +264,7 @@ def fatturato_ad_oggi():
             print("Warning: Could not convert '{0}' to float. Skipping this value.".format(numeri_value))
 
     rounded_total_sum = round(total_sum, 2)
-    rounded_total_sum = '{:,.2f}'.format(float(total_sum))
+    rounded_total_sum = '{:,.2f}'.format(float(total_sum)).replace(',', ' ').replace('.', ',').replace(' ', '.')
     return rounded_total_sum
 
 
@@ -301,53 +301,56 @@ def fatturato_da_emettere():
 
     # Calculate the sum of the 'value' column
     total_sum = df['value'].sum()
-    total_sum = '{:,.2f}'.format(float(total_sum))
+    total_sum = '{:,.2f}'.format(float(total_sum)).replace(',', ' ').replace('.', ',').replace(' ', '.')
 
 
     return total_sum
 
 ########################################################################################################################
-#REPORT PM NEL DETTAGLIO
 
-def contratto_e_n_progetto():
+# REPORT PM NEL DETTAGLIO
 
-    #make the query
+
+def contratto_e_n_progetto(name):
+    # make the query
 
     items = get_items(board_ids=[2286362570],
-                  column_values_ids=["file", "numeri0", "link_to_1__hf____offerte"],
-                  group_ids=["group_title"]
-                  )
+                      column_values_ids=["file", "numeri0", "person", "link_to_1__hf____offerte"],
+                      group_ids=["group_title"]
+                      )
 
     # Initialize variables before the loop
     data_list = []
 
     # Loop through the data and create a dataframe
     for item in items:
-      id = item['id']
-      file_count = item['column_values'][0]['value']
-      numero_progetto = item['column_values'][1]['text']
-      odv_string = item['column_values'][2]['value']
-      odv_data = json.loads(odv_string)
+        id = item['id']
+        file_count = item['column_values'][0]['value']
+        numero_progetto = item['column_values'][1]['text']
+        person = item['column_values'][2]['text']
+        odv_string = item['column_values'][3]['value']
+        odv_data = json.loads(odv_string)
 
-      try:
-        odv_linked_pulse_ids = [item['linkedPulseId'] for item in odv_data['linkedPulseIds']]
-        odv_linked_pulse_ids = odv_linked_pulse_ids[0]
-      except:
-        odv_linked_pulse_ids = ""
+        try:
+            odv_linked_pulse_ids = [item['linkedPulseId'] for item in odv_data['linkedPulseIds']]
+            odv_linked_pulse_ids = odv_linked_pulse_ids[0]
+        except:
+            odv_linked_pulse_ids = ""
 
+        if file_count is None:
+            file_count = "NO"
+        else:
+            file_count = "SI"
 
+        if numero_progetto is None:
+            numero_progetto = 'Assente'
 
-      if file_count is None:
-        file_count = "NO"
-      else:
-        file_count = "SI"
-
-      if numero_progetto is None:
-        numero_progetto = 'Assente'
-
-      data_list.append({'id_progetto': id, 'file': file_count, 'numero progetto': numero_progetto, "odv_linked_pulse_ids": odv_linked_pulse_ids})
+        data_list.append({'id_progetto': id, 'person': person, 'file': file_count, 'numero progetto': numero_progetto,
+                          "odv_linked_pulse_ids": odv_linked_pulse_ids})
     df_progetto = pd.DataFrame(data_list)
 
+    if name != "":
+        df_progetto = df_progetto[df_progetto['person'] == name]
 
     return df_progetto
 
@@ -359,7 +362,7 @@ def n_gu_mese():
     #make the query
     items = get_items(board_ids=[3811872676],
                   column_values_ids=["date", "numeric", "board_relation"],
-                  query_params_str='{rules: [{column_id: "date", compare_value: ["2023-11-01", "2023-11-30"], operator: between}]}', # TODO inserire le date di questo mese
+                  query_params_str='{rules: [{column_id: "date", compare_value: ["'+first_day+'", "'+last_day+'"], operator: between}]}', # TODO inserire le date di questo mese
                   group_ids=["topics"],
                   #limit = 500
                   )
@@ -369,12 +372,15 @@ def n_gu_mese():
 
     # Loop through the data and create a dataframe
     for item in items:
+
       id_rapportino = item['id']
       date = item['column_values'][0]['text']
       ore_rendicontate = item['column_values'][1]['text']
       ore_rendicontate = float(ore_rendicontate)
+      ore_rendicontate = round(ore_rendicontate, 2)
       pj_string = item['column_values'][2]['value']
       pj_data = json.loads(pj_string)
+
       try:
         pj_linked_pulse_ids = [item['linkedPulseId'] for item in pj_data['linkedPulseIds']]
         pj_linked_pulse_ids = pj_linked_pulse_ids[0]
@@ -512,17 +518,26 @@ def first_merge():
     # Create 'da_fatturare' column
     merged_df['da_fatturare'] = merged_df['imponibile'] - merged_df['fatturato']
 
+    # if the value is nan, replace with 0
+    merged_df['da_fatturare'].fillna(0, inplace=True)
+    merged_df['fatturato'].fillna(0, inplace=True)
+
+    # Format columns 'imponibile', 'fatturato', and 'da_fatturare'
+    format_currency = lambda x: '{:,.2f}'.format(float(x)).replace(',', ' ').replace('.', ',').replace(' ', '.')
+    merged_df['imponibile'] = merged_df['imponibile'].apply(format_currency)
+    merged_df['fatturato'] = merged_df['fatturato'].apply(format_currency)
+    merged_df['da_fatturare'] = merged_df['da_fatturare'].apply(format_currency)
+
     # Select specific columns
     result_df = merged_df[['id_odv', 'imponibile', 'pj_linked_pulse_id', 'fatturato', 'data_chiusura', 'da_fatturare']]
-    result_df
 
     return result_df
 
 
-def final_merge():
+def final_merge(name):
 
     df_rapportino = n_gu_mese()
-    df_progetto = contratto_e_n_progetto()
+    df_progetto = contratto_e_n_progetto(name)
     result_df = first_merge()
 
     # Convert 'pj_linked_pulse_id' and 'id_progetto' to the same data type (e.g., str) before merging
@@ -550,6 +565,11 @@ def final_merge():
       how='inner'
     )
 
+    merged_result = merged_result.sort_values(by='ore_rendicontate', ascending=False)
+    # Reset the index to start from 0 and drop the existing index
+    merged_result = merged_result.reset_index(drop=True)
+    merged_result = merged_result.reset_index()
 
     return merged_result
+
 
