@@ -34,7 +34,11 @@ def mese_corrente():
 def today():
     # Get today's date
     today_date = datetime.today().date()
-    return today_date
+
+    # Format the date as DD.MM.YYYY
+    formatted_date = today_date.strftime('%d.%m.%Y')
+
+    return formatted_date
 
 
 def get_first_and_last_day_of_current_month():
