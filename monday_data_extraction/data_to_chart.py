@@ -72,14 +72,14 @@ def n_progetti_in_progress_su_pm(person_name, path_str):
     # Create an Altair chart
     chart = alt.Chart(counts).mark_bar().encode(
         x=alt.X('person:N',
-                title='PM/SO',
+                title='',
                 sort=alt.EncodingSortField(field='count', op='sum', order='ascending'),
                 axis=alt.Axis(labelAngle=45, labelFontSize=16, labels=condition), ),
         y=alt.Y('count:Q', title='', scale=alt.Scale(domain=[0, max_value])),
         color=alt.Color('specchio_1:N', title='BU',
                         scale=alt.Scale(domain=list(bu_colors.keys()), range=list(bu_colors.values()))),
         tooltip=['person', 'count', 'specchio_1']
-    ).interactive().properties(width=600, height=200,
+    ).interactive().properties(width=800, height=300,
                                title=alt.TitleParams(text='N Progetti in Progress su PM', fontSize=20))
 
     # Create text labels for the summed count values
@@ -190,7 +190,6 @@ def importi_progress_pm(person_name, path_str):
     return chart_path
 
 
-
 def importo_progress_bu(name, path_str):
     # make the query
     items = get_items(board_ids=[2286362570],
@@ -235,9 +234,9 @@ def importo_progress_bu(name, path_str):
         y=alt.Y('sum(sum_values):Q', axis=alt.Axis(title='')),
         tooltip=['tag:N', 'sum(sum_values):Q']
     ).properties(
-        width=600,
-        height=400,
-        title=alt.TitleParams(text='Importi progetti in Progress per BU', fontSize=24)
+        width=800,
+        height=300,
+        title=alt.TitleParams(text='Importi progetti in Progress per BU', fontSize=20)
     )
 
     # Create text labels for the summed values
@@ -248,8 +247,8 @@ def importo_progress_bu(name, path_str):
         text=alt.Text('sum(sum_values):Q', format=',.2f'),
         tooltip=['tag:N', 'sum(sum_values):Q']
     ).interactive().properties(
-        width=600,
-        height=400
+        width=800,
+        height=300
     )
 
     # Combine the bar chart and text labels
@@ -539,7 +538,7 @@ def analisi_assenze_liberi_professionisti():
                 axis=alt.Axis(labelAngle=0, labelFontSize=18)),
         y=alt.Y('valore:Q', title='Giornate Lavorative'),
         tooltip=['utente', 'valore']
-    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Analisi Assenze Liberi Professionisti', fontSize=20))
+    ).interactive().properties(width=800, height=300, title=alt.TitleParams(text='Analisi Assenze Liberi Professionisti', fontSize=20))
 
     # Create text labels for the summed values
     text = alt.Chart(counts).mark_text(dx=0, dy=25, color='black').encode(
@@ -588,7 +587,7 @@ def giornate_smart_working():
     counts = filtered_df.groupby(['nome_lavoratore']).size().reset_index(name='count')
 
     # Create an Altair chart
-    chart = alt.Chart(counts).mark_bar(color='blue').encode(
+    chart = alt.Chart(counts).mark_bar(color='#1f77b4').encode(
         x=alt.X('nome_lavoratore',
                 title=' ',
                 sort=alt.EncodingSortField(field='count'),
@@ -659,7 +658,7 @@ def timesheet_mese():
         y=alt.Y('ore_rendicontate:Q', title='Ore Rendicontate', scale=alt.Scale(domain=[0, max_value])),
         color=alt.Color('bu:N', title='BU'),
         tooltip=['nome_lavoratore', 'ore_rendicontate', 'bu']
-    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Timesheet Mese', fontSize=20))
+    ).interactive().properties(width=800, height=300, title=alt.TitleParams(text='Timesheet Mese', fontSize=20))
 
     # Create text labels for the summed values
     text = alt.Chart(result_df).mark_text(dx=0, dy=-10, color='black').encode(
@@ -808,7 +807,7 @@ def resoconto_budget_consuntivo_player():
         y=alt.Y('sum(diff)', title='GU'),
         color='stato',
         tooltip=['name', 'stato', 'diff']
-    ).interactive().properties(width=600, height=200, title=alt.TitleParams(text='Differenza tra Budget e Consuntivo Per Player', fontSize=20))
+    ).interactive().properties(width=800, height=300, title=alt.TitleParams(text='Differenza tra Budget e Consuntivo Per Player', fontSize=20))
 
     # Create text labels for the summed values
     text = alt.Chart(df).mark_text(dx=0, dy=-20, color='black').encode(
@@ -816,7 +815,7 @@ def resoconto_budget_consuntivo_player():
         y=alt.Y('sum(diff):Q'),
         text=alt.Text('sum(diff):Q', format='.2f'),
         tooltip=['name:N', 'sum(diff):Q']
-    ).interactive().properties(width=600, height=200)
+    ).interactive().properties(width=800, height=300)
 
     # Combine the bar chart and text labels
     chart = chart + text
