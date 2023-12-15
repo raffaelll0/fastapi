@@ -1,3 +1,4 @@
+import time
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import black, white
@@ -10,6 +11,8 @@ import monday_data_extraction.data_to_score
 from monday_data_extraction import data_to_chart
 from monday_data_extraction import data_to_score
 from monday import today, mese_corrente, anno_corrente
+
+
 def header(pdf):
     # HEADER
     # Get the dimensions of the img
@@ -26,6 +29,7 @@ def header(pdf):
                         height=logo_height)
 
     # HEADER
+
 
 def footer(pdf):
     # FOOTER
@@ -52,6 +56,7 @@ def num_pag(pdf, n):
     pdf.setFont("Helvetica", 12)  # Set font to bold and size 16
     pdf.drawString(page_width - pdf.stringWidth(page_number_text, 'Helvetica', 12) - 20, 20, page_number_text)
 
+
 def title(pdf, text, y_offset):
     # TITLE
     # Add bold title in the center
@@ -75,11 +80,6 @@ def descriptions(pdf, text_1, text2, x_offset, y_offset):
     pdf.drawString(x_offset, y_offset, text_1)
     pdf.drawString(x_offset, y_offset - 20, text2)
     # DESCRIPTIONS
-
-
-
-
-
 
 
 def draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset):
@@ -153,7 +153,6 @@ def box_descriptions(pdf, x_offset, y_offset, num_sets, box_details_list):
         y_offset -= 25
 
 
-
 def create_boxes(pdf, n_boxes, box_details, x_offset, y_offset, desc_height, custom_height=None):
     box_width = 85  # Default width for most columns
     indice_column_width = 30  # Adjust the width for the "Indice" column
@@ -202,32 +201,21 @@ def create_boxes(pdf, n_boxes, box_details, x_offset, y_offset, desc_height, cus
         x_position += current_box_width + space_between_boxes
 
 
-
 list_pm = ["Chiara Bernacchi", "Angelo Ducoli", "Christian Trocino", "Edgardo Maffezzoli", "Giovanni Erbicella",
-           "Luca Capozzi", "Nicolo Balsamo",
-           "Raffaele Tardi"]
+           "Luca Capozzi", "Nicolo Balsamo", "Raffaele Tardi"]
 
 
-def create_pdf(file_path):
-    # Create a BytesIO buffer to capture the PDF content
-    buffer = BytesIO()
-    # Create a PDF document
-    pdf = canvas.Canvas(file_path, pagesize=letter)
-
-########################################################################################################################
+def indice_conteggi(pdf):
     # INDICE START
-
+    print("Generating indice and conteggi...")
     # HEADER START
     header(pdf)
-    # HEADER END
 
     # TITLE START
     title(pdf, text=f"REPORT KPI {mese_corrente()}  {anno_corrente()}", y_offset=680)
-    # TITLE END
 
     # TITLE START
     title(pdf, text="INDICE", y_offset=650)
-    # TITLE END
     n_indice = 6
     empty_string = "                                                                        "
 
@@ -236,13 +224,13 @@ def create_pdf(file_path):
                  text2="ANALISI OPERATIVA PROGETTI                 ______________________Pag 2",
                  x_offset=50,
                  y_offset=600)
-    # DESCRIPTIONS END
+
     # DESCRIPTIONS START
 
     descriptions(pdf, text_1="CONTROLLO DI GESTIONE                         ______________________Pag 3",
-                    text2=f"", x_offset=50,
-                    y_offset=560)
-    # DESCRIPTIONS END
+                 text2=f"", x_offset=50,
+                 y_offset=560)
+
     # DESCRIPTIONS START
     y = 540
     for pm in list_pm:
@@ -258,11 +246,6 @@ def create_pdf(file_path):
         y -= 20
         n_indice += 1
 
-
-
-
-    # DESCRIPTIONS END
-
     # DESCRIPTIONS START
     for pm in list_pm:
         descriptions(pdf, text_1=f"REPORT PM Dettaglio: {pm}",
@@ -275,15 +258,13 @@ def create_pdf(file_path):
                      y_offset=y)
         y -= 20
         n_indice += 1
-    # DESCRIPTIONS END
 
     # FOOTER START
     footer(pdf)
-    # FOOTER END
     num_pag(pdf, "0")
 
     # INDICE END
-########################################################################################################################
+
     # FIRST PAGE START
     pdf.showPage()
     # HEADER START
@@ -295,7 +276,8 @@ def create_pdf(file_path):
     # TITLE END
 
     # DESCRIPTIONS START
-    descriptions(pdf, text_1="Autore del report: Christian Trocino", text2=f"Dati aggiornati al: {today()} ", x_offset=50,
+    descriptions(pdf, text_1="Autore del report: Christian Trocino", text2=f"Dati aggiornati al: {today()} ",
+                 x_offset=50,
                  y_offset=650)
     # DESCRIPTIONS END
 
@@ -313,7 +295,8 @@ def create_pdf(file_path):
     num_boxes = 4
     box_titles = ["PREVENTIVI EVASI", "PREVENTIVI ACCETTATI", "PREV. ACCETTATI CONSUNTIVO",
                   "IMPORTO PREV EVASI"]
-    box_values = [str(tot_prev_evasi_mese), str(tot_prev_acc_mese), str(tot_prev_acc_cons), str(tot_prev_evasi_tot)+' €']
+    box_values = [str(tot_prev_evasi_mese), str(tot_prev_acc_mese), str(tot_prev_acc_cons),
+                  str(tot_prev_evasi_tot) + ' €']
     box_width = 120
     box_height = 80
 
@@ -331,7 +314,7 @@ def create_pdf(file_path):
 
     num_boxes = 2
     box_titles = ["PREVENTIVI ACCETTATI", "IMPORTO PREV. ACCETTATI"]
-    box_values = [str(tot_prev_acc), str(tot_prev_acc_importo)+' €']
+    box_values = [str(tot_prev_acc), str(tot_prev_acc_importo) + ' €']
     box_width = 120
     box_height = 80
 
@@ -346,7 +329,7 @@ def create_pdf(file_path):
 
     num_boxes = 3
     box_titles = ["FATTURATO AD OGGI", "FATTURATO DA EMETTERE", f"FATTURATO PREVISTO {anno_corrente()}"]
-    box_values = [str(fatturato_ad_oggi)+' €', str(fatturato_da_emettere)+' €', str(fatturato_previsto)+' €']
+    box_values = [str(fatturato_ad_oggi) + ' €', str(fatturato_da_emettere) + ' €', str(fatturato_previsto) + ' €']
     box_width = 120
     box_height = 80
 
@@ -357,7 +340,12 @@ def create_pdf(file_path):
     footer(pdf)
     # FOOTER END
     num_pag(pdf, "1")
-#####################################################################################################################
+
+    print("Done!")
+
+
+def analisi_operativa_progetti(pdf):
+    print("Generating Analisi Operativa Progetti...")
     # SECOND PAGE START
     pdf.showPage()
     # HEADER START
@@ -390,7 +378,12 @@ def create_pdf(file_path):
     # FOOTER END
     num_pag(pdf, "2")
     # SECOND PAGE END
-#######################################################################################################################
+    print("Done!")
+
+
+def controllo_di_gestione(pdf):
+    print("Generating Controllo di Gestione...")
+    #######################################################################################################################
     # THIRD PAGE START
     pdf.showPage()
     # HEADER START
@@ -423,7 +416,7 @@ def create_pdf(file_path):
     # FOOTER END
     # THIRD PAGE END
     num_pag(pdf, "3")
-########################################################################################################################
+    ########################################################################################################################
 
     # FOURTH PAGE START
     pdf.showPage()
@@ -457,7 +450,7 @@ def create_pdf(file_path):
     # FOOTER END
     # FOURTH PAGE END
     num_pag(pdf, 4)
-#######################################################################################################################
+    #######################################################################################################################
     # FIFTH PAGE START
     pdf.showPage()
     # HEADER START
@@ -469,25 +462,19 @@ def create_pdf(file_path):
     # chart_path = r'pngs_of_charts/chart_7.png'
     draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=720, logo_width=500, logo_height=300)
 
-    # BOX_1 START
-
-    # num_boxes = 2
-    # box_titles = [f"OBIETTIVI {anno_corrente()}", "COMMENTI"]
-    # box_values = ["TESTO", "TESTO"]
-    # box_width = 220
-    # box_height = 80
-    #
-    # draw_boxes(pdf, num_boxes, box_titles, box_values, box_width, box_height, current_y_offset=250)
-    # BOX_1 END
-
     # FOOTER START
     footer(pdf)
     # FOOTER END
     # FIFTH PAGE END
     num_pag(pdf, "5")
-#######################################################################################################################
+    print("Done!")
 
-    num = 5
+
+def report_nel_dettaglio(pdf, shared_data):
+    print("Generating Report nel Dettaglio...")
+
+    num = shared_data[0]
+
     for pm in list_pm:
         print(pm)
         # SIXT PAGE START
@@ -545,12 +532,17 @@ def create_pdf(file_path):
         # FOOTER START
         footer(pdf)
         # FOOTER END
-        print("done")
-        # SIXT PAGE END
+        # SIXTH PAGE END
 
-########################################################################################################################
+    shared_data[0] = num
+    print("Done!")
 
-   # SEVENTH PAGE START
+
+def report_pm_kpi(pdf, shared_data):
+    print("Generating Report PM KPI...")
+    num = shared_data[0]
+
+    # SEVENTH PAGE START
 
     for pm in list_pm:
         def chunks(lst, chunk_size):
@@ -577,13 +569,13 @@ def create_pdf(file_path):
         # Create multiple sets of boxes with descriptions
         empty = " "
         box_details_list = [
-            [' ' +str(row['index']),
-             '   ' +str(row['numero progetto']),
-             '   ' +str(row['file']),
-             ' ' +str(row['imponibile']+' €'),
-             ' ' +str(row['fatturato']+' €'),
-             ' ' +str(row['da_fatturare']+' €'),  # Round 'Da Fatturare' to 2 decimal places
-             ' ' +str(row['data_chiusura'].strftime('%d-%m-%Y')if not pd.isnull(row['data_chiusura']) else ''),
+            [' ' + str(row['index']),
+             '   ' + str(row['numero progetto']),
+             '   ' + str(row['file']),
+             ' ' + str(row['imponibile'] + ' €'),
+             ' ' + str(row['fatturato'] + ' €'),
+             ' ' + str(row['da_fatturare'] + ' €'),  # Round 'Da Fatturare' to 2 decimal places
+             ' ' + str(row['data_chiusura'].strftime('%d-%m-%Y') if not pd.isnull(row['data_chiusura']) else ''),
              '   ' + "{:.2f}".format(float(row['ore_rendicontate']))]
             # Format 'Data Chiusura' if not NaT)]  # Format 'Data Chiusura'
             for _, row in merged_result.iterrows()
@@ -596,7 +588,8 @@ def create_pdf(file_path):
             header(pdf)
             title(pdf, text=f"REPORT PM  Dettaglio: {pm}", y_offset=680)
             create_boxes(pdf, n_boxes, box_details, x_offset=20, desc_height=40, y_offset=600)
-            box_descriptions(pdf, x_offset=20, y_offset=595, num_sets=len(box_details_set), box_details_list=box_details_set)
+            box_descriptions(pdf, x_offset=20, y_offset=595, num_sets=len(box_details_set),
+                             box_details_list=box_details_set)
             row_counter += len(box_details_set)
             footer(pdf)
             num += 1
@@ -606,8 +599,39 @@ def create_pdf(file_path):
         footer(pdf)
         # FOOTER END
         # SEVENTH PAGE END
+    print("Done!")
 
-########################################################################################################################
+
+def retry_function(func, *args, max_attempts=3, delay=1):
+    attempts = 0
+
+    while attempts < max_attempts:
+        try:
+            func(*args)
+            break  # If successful, exit the loop
+        except Exception as e:
+            attempts += 1
+            print(f"Error in '{func.__name__}'. Retrying ({attempts}/{max_attempts})...")
+            time.sleep(delay)  # Add a delay between retries (optional)
+
+    if attempts == max_attempts:
+        raise Exception(f"Maximum attempts reached for '{func.__name__}'. Unable to proceed.")
+
+
+def create_pdf(file_path):
+    # Create a BytesIO buffer to capture the PDF content
+    buffer = BytesIO()
+    # Create a PDF document
+    pdf = canvas.Canvas(file_path, pagesize=letter)
+
+    shared_list = [5]  # Initial value for 'num' in a list
+
+    # Create all the parts of the PDF
+    retry_function(indice_conteggi, pdf)
+    retry_function(analisi_operativa_progetti, pdf)
+    retry_function(controllo_di_gestione, pdf)
+    retry_function(report_nel_dettaglio, pdf, shared_list)
+    retry_function(report_pm_kpi, pdf, shared_list)
 
     # Save the PDF to the specified file path
     pdf.save()
@@ -620,20 +644,11 @@ def create_pdf(file_path):
 
     return pdf_bytes
 
+
 # Specify the file path for the PDF
-
-
 pdf_file_path = "pdf_with_image.pdf"
 
 # Call the function to create the PDF with the image
 create_pdf(pdf_file_path)
 
 print(f"PDF with image created successfully at: {pdf_file_path}")
-
-
-
-
-
-
-
-
