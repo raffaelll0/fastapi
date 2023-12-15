@@ -1,5 +1,4 @@
 import requests
-
 from monday_data_extraction import monday
 import pandas as pd
 from monday_data_extraction.monday import first_and_last_day_of_year, get_first_and_last_day_of_current_month
@@ -11,7 +10,7 @@ headers = monday.headers
 
 get_items = monday.get_items
 
-#QUESTE FUNZIONI SERVONO AD ESTRARRE I DATI NUMERICI DEI PREVENTIVI
+# QUESTE FUNZIONI SERVONO AD ESTRARRE I DATI NUMERICI DEI PREVENTIVI
 
 
 def n_tot_prev_accettati_anno():
@@ -178,7 +177,6 @@ def importo_tot_prev_accettati():
 
             data_list.append({'id': id, 'value': value})
 
-
     df = pd.DataFrame(data_list)
 
     # Remove duplicates based on the 'id' column
@@ -306,8 +304,8 @@ def fatturato_da_emettere():
 
     return total_sum
 
-########################################################################################################################
 
+########################################################################################################################
 # REPORT PM NEL DETTAGLIO
 
 

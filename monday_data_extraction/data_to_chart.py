@@ -738,8 +738,8 @@ def bu_h_pie():
     return chart_path
 
 
-##################################
-
+########################################################################################################################
+# REPORT PM KPI
 def resoconto_budget_consuntivo_player():
     query = '{boards(ids: 2787765150){ groups(ids:"topics") { items_page(limit:200){items{ column_values(ids: ["dup__of_pm8"]) { ... on MirrorValue { display_value } } subitems{ id column_values(ids:["monitoraggio_tempo5" "numeri" "status" "person"]){ value id text type } } } } }} }'
     data = {'query': query}
@@ -827,6 +827,7 @@ def resoconto_budget_consuntivo_player():
 
     return chart_path
 
+
 def fatturazione_in_progress_media(name, path_str):
   #make the query
   items = get_items(board_ids=[2286362570],
@@ -896,6 +897,7 @@ def fatturazione_in_progress_media(name, path_str):
 
   return chart_path
 
+
 def numero_progetti_in_progress_anno(name):
 
     #make the query
@@ -948,16 +950,4 @@ def numero_progetti_in_progress_anno(name):
 
     return chart_path
 
-# Example usage with the name "Chiara Bernacchi"
-#n_progetti_in_progress_su_pm('Chiara Bernacchi', 'chart_chiara.png')
-#importi_progress_pm("Chiara Bernacchi", "importi_progress_pm_chiara.png")
-#fatturazione_in_progress_media('Chiara Bernacchi', 'fatturazione_in_progress_media_chiara.png')
-
-# Example usage with dynamic tags
-#importo_progress_bu(["FM0","CONS-IMP", "CONS-IMM"], "importo_progress_bu.png")
-
-#numero_progetti_in_progress_anno()
-
-# Example usage with dynamic years
-#importo_progetti_progress_anno(["2020", "2021", "2022", "2023"], "importo_progetti_progress_anno_filtered.png")
 
