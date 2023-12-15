@@ -361,7 +361,7 @@ def analisi_operativa_progetti(pdf):
     # Draw Altair chart image under the description
     chart_path = data_to_chart.n_progetti_in_progress_su_pm("", "")
     #chart_path = r'pngs_of_charts/chart_1.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=55, y_offset=720, logo_width=530, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=60, y_offset=720, logo_width=510, logo_height=200)
 
     chart_path = data_to_chart.importi_progress_pm("", "")
     #chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_10.png'
@@ -369,7 +369,7 @@ def analisi_operativa_progetti(pdf):
 
     chart_path = data_to_chart.importo_progress_bu("", "")
     #chart_path = r'C:\Users\raffaele.loglisci\PycharmProjects\pdf_heroku\monday_data_extraction\pngs_of_charts\chart_11.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=30, y_offset=320, logo_width=485, logo_height=180)
+    draw_chart_under_description(pdf, chart_path, x_offset=40, y_offset=320, logo_width=475, logo_height=180)
 
     # DESCRIPTIONS + IMG END
 
@@ -399,7 +399,7 @@ def controllo_di_gestione(pdf):
     # Draw Altair chart image under the description
     chart_path = data_to_chart.analisi_ferie_malattia()
     # chart_path = r'pngs_of_charts/chart_4.png'
-    draw_chart_under_description(pdf, chart_path, x_offset=None, y_offset=700, logo_width=450, logo_height=200)
+    draw_chart_under_description(pdf, chart_path, x_offset=85, y_offset=700, logo_width=460, logo_height=200)
 
     chart_path = data_to_chart.analisi_permessi_rol()
     # chart_path = r'pngs_of_charts\chart_5.png'
@@ -627,11 +627,11 @@ def create_pdf(file_path):
     shared_list = [5]  # Initial value for 'num' in a list
 
     # Create all the parts of the PDF
-    retry_function(indice_conteggi, pdf)
-    retry_function(analisi_operativa_progetti, pdf)
+    #retry_function(indice_conteggi, pdf)
+    #retry_function(analisi_operativa_progetti, pdf)
     retry_function(controllo_di_gestione, pdf)
-    retry_function(report_nel_dettaglio, pdf, shared_list)
-    retry_function(report_pm_kpi, pdf, shared_list)
+    # retry_function(report_nel_dettaglio, pdf, shared_list)
+    # retry_function(report_pm_kpi, pdf, shared_list)
 
     # Save the PDF to the specified file path
     pdf.save()
